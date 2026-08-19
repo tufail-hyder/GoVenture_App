@@ -24,6 +24,7 @@ dependencies:
   intl: ^0.20.3
   shimmer_animation: ^2.2.2+1
   cloudinary_public: ^0.23.1
+  cached_network_image: ^3.4.1
 
 dev_dependencies:
   flutter_test:

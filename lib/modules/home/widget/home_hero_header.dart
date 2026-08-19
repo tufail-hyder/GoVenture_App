@@ -79,7 +79,7 @@ class HomeHeroHeader extends StatelessWidget {
                 text: TextSpan(
                   style: theme.textTheme.displayLarge?.copyWith(fontSize: 26, color: Colors.black),
                   children: [
-                    const TextSpan(text: 'Explore the World\nwith '),
+                    const TextSpan(text: 'Explore the Pakistan\nwith '),
                     TextSpan(text: 'GoVenture', style: const TextStyle(color: AppColors.primary)),
                   ],
                 ),

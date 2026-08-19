@@ -9,6 +9,7 @@ class UpcomingBookingModel {
   final String status;
   final int? duration;
   final num? amount;
+  final int? travelers;   // NAYA — Booking Form (Step 9) mein set hoga
 
   UpcomingBookingModel({
     required this.id,
@@ -19,6 +20,7 @@ class UpcomingBookingModel {
     required this.status,
     this.duration,
     this.amount,
+    this.travelers,
   });
 
   factory UpcomingBookingModel.fromFirestore(DocumentSnapshot doc) {
@@ -32,6 +34,7 @@ class UpcomingBookingModel {
       status: data['status'] ?? '',
       duration: data['duration'],
       amount: data['amount'],
+      travelers: data['travelers'],
     );
   }
 }

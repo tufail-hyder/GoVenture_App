@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:goventure/modules/explore/screens/explore_screen.dart';
 import '../home/screens/home_screen.dart';
 import '../auth/controllers/auth_controller.dart';
 import '../../core/constants/app_icons.dart';
@@ -19,7 +20,7 @@ class _RootScreenState extends State<RootScreen> {
   Widget build(BuildContext context) {
     final screens = [
       const HomeScreen(),
-      const Center(child: Text('Explore')),
+      const ExploreScreen(),
       const Center(child: Text('Bookings')),
       const Center(child: Text('Saved')),
       // Obx(() => authController.isLoggedIn ? const ProfileScreen() : LoginScreen()),

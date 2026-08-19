@@ -9,9 +9,9 @@ class HomeMockData {
     return List.generate(count, (i) {
       return TripModel(
         id: 'mock_trip_$i',
-        title: 'Sample Trip ${i + 1}',
+        title: 'Hunza Valley ${i + 1}',
         slug: 'sample-trip-${i + 1}',
-        location: 'Hunza Valley',
+        location: 'Gilgit Baltistan',
         price: 25000 + (i * 5000),
         duration: 3 + i,
         type: [AppTexts.tripTypeAdventure, AppTexts.tripTypeWorkcation, AppTexts.tripTypeRetreat][i % 3],

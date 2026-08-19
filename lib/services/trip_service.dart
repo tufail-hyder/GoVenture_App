@@ -6,6 +6,17 @@ class TripService {
   static final CollectionReference _tripsRef =
   FirebaseFirestore.instance.collection(AppTexts.colTrips);
 
+  /// All active trips — used by the Explore screen, which does its own
+  /// client-side filtering/sorting once loaded. Bump [limit] (or switch to
+  /// pagination) once the catalog grows past a few hundred trips.
+  static Future<List<TripModel>> getAllTrips({int limit = 100}) async {
+    final snap = await _tripsRef
+        .where('isActive', isEqualTo: true)
+        .limit(limit)
+        .get();
+    return snap.docs.map((d) => TripModel.fromFirestore(d)).toList();
+  }
+
   static Future<List<TripModel>> getFeaturedTrips({int limit = 6}) async {
     final snap = await _tripsRef
         .where('isActive', isEqualTo: true)

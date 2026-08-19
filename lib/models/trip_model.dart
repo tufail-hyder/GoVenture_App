@@ -21,7 +21,8 @@ class TripModel {
   final String title;
   final String slug;
   final String location;
-  final num price;
+  final double price;
+  final double? originalPrice;
   final int duration;
   final String type;
   final String coverImage;
@@ -35,6 +36,10 @@ class TripModel {
   final bool isActive;
   final int viewCount;
   final int bookingsCount;
+  final int reviewCount;
+  final double rating;
+  final String tourMode;
+  final bool hasTransfers;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final bool isTopExperience;
@@ -46,6 +51,7 @@ class TripModel {
     required this.slug,
     required this.location,
     required this.price,
+    this.originalPrice,
     required this.duration,
     required this.type,
     required this.coverImage,
@@ -59,6 +65,10 @@ class TripModel {
     required this.isActive,
     this.viewCount = 0,
     this.bookingsCount = 0,
+    this.reviewCount = 0,
+    this.rating = 0.0,
+    this.tourMode = 'group',
+    this.hasTransfers = false,
     this.createdAt,
     this.updatedAt,
     this.isTopExperience = false,
@@ -72,7 +82,10 @@ class TripModel {
       title: data['title'] ?? '',
       slug: data['slug'] ?? '',
       location: data['location'] ?? '',
-      price: data['price'] ?? 0,
+      price: (data['price'] ?? 0).toDouble(),
+      originalPrice: data['originalPrice'] != null
+          ? (data['originalPrice'] as num).toDouble()
+          : null,
       duration: data['duration'] ?? 0,
       type: data['type'] ?? '',
       coverImage: data['coverImage'] ?? '',
@@ -88,6 +101,10 @@ class TripModel {
       isActive: data['isActive'] ?? false,
       viewCount: data['viewCount'] ?? 0,
       bookingsCount: data['bookingsCount'] ?? 0,
+      reviewCount: data['reviewCount'] ?? 0,
+      rating: (data['rating'] ?? 0).toDouble(),
+      tourMode: data['tourMode'] ?? 'group',
+      hasTransfers: data['hasTransfers'] ?? false,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
       updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
       isTopExperience: data['isTopExperience'] ?? false,

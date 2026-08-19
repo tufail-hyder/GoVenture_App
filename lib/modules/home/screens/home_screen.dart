@@ -59,13 +59,13 @@ class HomeScreen extends StatelessWidget {
                         SectionHeader(title: 'Popular Destinations', onSeeAll: () {}),
                         const SizedBox(height: AppSizes.sm + 2),
                         SizedBox(
-                          height: 150,
+                          height: 170,
                           child: ListView.separated(
                             scrollDirection: Axis.horizontal,
                             itemCount: controller.popularTrips.length,
                             separatorBuilder: (_, __) => const SizedBox(width: AppSizes.sm),
                             itemBuilder: (_, i) => SizedBox(
-                              width: 175,
+                              width: 140,
                               child: DestinationMiniCard(
                                 trip: controller.popularTrips[i],
                                 onTap: () {},
