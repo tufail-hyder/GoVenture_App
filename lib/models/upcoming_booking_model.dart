@@ -7,8 +7,8 @@ class UpcomingBookingModel {
   final String tripImage;
   final DateTime? travelDate;
   final String status;
-  final int? duration;   // NAYA — days, Booking Form mein set hoga
-  final num? amount;     // NAYA — price, Booking Form mein set hoga
+  final int? duration;
+  final num? amount;
 
   UpcomingBookingModel({
     required this.id,

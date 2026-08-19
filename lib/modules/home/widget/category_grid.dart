@@ -28,7 +28,7 @@ class CategoryGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 110,
+      height: 105,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: items.length,
@@ -38,8 +38,8 @@ class CategoryGrid extends StatelessWidget {
           return GestureDetector(
             onTap: item.onTap,
             child: Container(
-              width: 120,
-              padding: const EdgeInsets.all(AppSizes.sm + 2),
+              width: 115,
+              padding: const EdgeInsets.all(AppSizes.sm),
               decoration: BoxDecoration(
                 color: item.bgColor,
                 borderRadius: BorderRadius.circular(AppSizes.radiusLg),
@@ -57,14 +57,14 @@ class CategoryGrid extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSizes.sm),
                   Text(item.title,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black)),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.black)),
                   const SizedBox(height: 1),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(item.subtitle,
                           style: TextStyle(
-                              color: AppColors.textSecondaryLight, fontSize: 12, fontWeight: FontWeight.w600)),
+                              color: AppColors.textSecondaryLight, fontSize: 11, fontWeight: FontWeight.w600)),
                       Icon(Icons.chevron_right, size: 22, color: AppColors.textSecondaryLight),
                     ],
                   ),

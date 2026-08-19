@@ -15,7 +15,7 @@ class OnBoardingNextButton extends StatelessWidget {
     return Positioned(
       left: AppSizes.lg,
       right: AppSizes.lg,
-      bottom: 30,
+      bottom: 55,
       child: Obx(() {
         final isLastPage = controller.currentPageIndex.value == 2;
 

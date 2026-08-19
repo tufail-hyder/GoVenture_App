@@ -13,7 +13,7 @@ class OnBoardingDotNavigation extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Positioned(
-      bottom: 115,
+      bottom: 130,
       right: 0,
       left: 34,
       child: SmoothPageIndicator(

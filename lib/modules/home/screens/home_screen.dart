@@ -50,12 +50,53 @@ class HomeScreen extends StatelessWidget {
                           banner: controller.banner.value!,
                           onCtaTap: () {},
                         ),
-                        const SizedBox(height: AppSizes.md),
                       ],
 
+
+                      // ===== Featured Destinations =====
+                      if (controller.popularTrips.isNotEmpty) ...[
+                        const SizedBox(height: AppSizes.md),
+                        SectionHeader(title: 'Popular Destinations', onSeeAll: () {}),
+                        const SizedBox(height: AppSizes.sm + 2),
+                        SizedBox(
+                          height: 150,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: controller.popularTrips.length,
+                            separatorBuilder: (_, __) => const SizedBox(width: AppSizes.sm),
+                            itemBuilder: (_, i) => SizedBox(
+                              width: 175,
+                              child: DestinationMiniCard(
+                                trip: controller.popularTrips[i],
+                                onTap: () {},
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+
+                      // ===== Upcoming Trips =====
+                      if (controller.upcomingBookings.isNotEmpty) ...[
+                        const SizedBox(height: AppSizes.md),
+                        SectionHeader(title: 'Upcoming Trips', onSeeAll: () {}),
+                        const SizedBox(height: AppSizes.sm + 2),
+                        SizedBox(
+                          height: 260,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: controller.upcomingBookings.length,
+                            separatorBuilder: (_, _) => const SizedBox(width: AppSizes.sm),
+                            itemBuilder: (_, i) => UpcomingTripListTile(
+                              booking: controller.upcomingBookings[i],
+                              onTap: () {},
+                            ),
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: AppSizes.md),
                       // ===== Category Grid =====
                       SectionHeader(title: 'Trip Categories'),
-                      const SizedBox(height: AppSizes.sm),
+                      const SizedBox(height: AppSizes.sm + 2),
                       CategoryGrid(
                         items: [
                           CategoryGridItem(
@@ -85,35 +126,13 @@ class HomeScreen extends StatelessWidget {
                         ],
                       ),
 
-                      // ===== Featured Destinations =====
-                      if (controller.popularTrips.isNotEmpty) ...[
-                        const SizedBox(height: AppSizes.lg),
-                        SectionHeader(title: 'Popular Destinations', onSeeAll: () {}),
-                        const SizedBox(height: AppSizes.sm),
-                        SizedBox(
-                          height: 160,
-                          child: ListView.separated(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: controller.popularTrips.length,
-                            separatorBuilder: (_, __) => const SizedBox(width: AppSizes.sm),
-                            itemBuilder: (_, i) => SizedBox(
-                              width: 140,
-                              child: DestinationMiniCard(
-                                trip: controller.popularTrips[i],
-                                onTap: () {},
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-
                       // ===== Featured Trips =====
                       if (controller.featuredTrips.isNotEmpty) ...[
-                        const SizedBox(height: AppSizes.lg),
+                        const SizedBox(height: AppSizes.md),
                         SectionHeader(title: 'Featured Trips', onSeeAll: () {}),
-                        const SizedBox(height: AppSizes.sm),
+                        const SizedBox(height: AppSizes.sm + 2),
                         SizedBox(
-                          height: 235,
+                          height: 220,
                           child: ListView.separated(
                             scrollDirection: Axis.horizontal,
                             itemCount: controller.featuredTrips.length,
@@ -136,36 +155,21 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ],
 
-                      // ===== Upcoming Trips =====
-                      if (controller.upcomingBookings.isNotEmpty) ...[
-                        const SizedBox(height: AppSizes.lg),
-                        SectionHeader(title: 'Upcoming Trips', onSeeAll: () {}),
-                        const SizedBox(height: AppSizes.sm),
-                        SizedBox(
-                          height: 195,
-                          child: ListView.separated(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: controller.upcomingBookings.length,
-                            separatorBuilder: (_, __) => const SizedBox(width: AppSizes.sm),
-                            itemBuilder: (_, i) => UpcomingTripListTile(
-                              booking: controller.upcomingBookings[i],
-                              onTap: () {},
-                            ),
-                          ),
-                        ),
-                      ],
-
                       // ===== From the Blog =====
                       if (controller.blogPosts.isNotEmpty) ...[
-                        const SizedBox(height: AppSizes.lg),
-                        SectionHeader(title: 'From the Blog', onSeeAll: () {}),
-                        const SizedBox(height: AppSizes.sm),
+                        const SizedBox(height: AppSizes.md),
+                        SectionHeader(
+                          title: 'Latest from Our Blog',
+                          onSeeAll: () {},
+                        ),
+                        const SizedBox(height: AppSizes.sm + 2),
                         SizedBox(
-                          height: 160,
+                          height: 140,
                           child: ListView.separated(
                             scrollDirection: Axis.horizontal,
                             itemCount: controller.blogPosts.length,
-                            separatorBuilder: (_, __) => const SizedBox(width: AppSizes.sm),
+                            separatorBuilder: (_, __) =>
+                            const SizedBox(width: AppSizes.sm),
                             itemBuilder: (_, i) => BlogCardHorizontal(
                               blog: controller.blogPosts[i],
                               onTap: () {},
@@ -173,7 +177,6 @@ class HomeScreen extends StatelessWidget {
                           ),
                         ),
                       ],
-
                       const SizedBox(height: AppSizes.xxl),
                     ],
                   ),

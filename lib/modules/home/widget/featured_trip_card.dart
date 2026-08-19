@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:goventure/core/constants/app_images.dart';
 import '../../../models/trip_model.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
 
 class FeaturedTripCard extends StatelessWidget {
   final TripModel trip;
-  final String badgeText;   // "Best Seller" / "Top Rated" / "Popular"
-  final Color badgeColor;   // badge ka background color, section ke hisaab se alag
+  final String badgeText;
+  final Color badgeColor;
   final VoidCallback onTap;
   final VoidCallback? onFavoriteTap;
 
@@ -28,7 +27,7 @@ class FeaturedTripCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 200,
+        width: 180,
         decoration: BoxDecoration(color: theme.cardColor, borderRadius: BorderRadius.circular(AppSizes.radiusLg)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -39,9 +38,14 @@ class FeaturedTripCard extends StatelessWidget {
                 ClipRRect(
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(AppSizes.radiusLg)),
                   child: SizedBox(
-                    height: 110, width: double.infinity,
+                    height: 110,
+                    width: double.infinity,
                     child: trip.coverImage.isNotEmpty
-                        ? Image.asset(AppImages.g3, fit: BoxFit.cover)
+                        ? Image.network(
+                      trip.coverImage,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, _, _) => Container(color: Colors.grey.shade300),
+                    )
                         : Container(color: Colors.grey.shade300),
                   ),
                 ),
@@ -74,26 +78,26 @@ class FeaturedTripCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(trip.title,
-                      maxLines: 1, overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                      maxLines: 2, overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14,color: Colors.black)),
                   const SizedBox(height: 4),
 
                   // Duration + Type row
                   Row(
                     children: [
-                      const Icon(Icons.bookmark_border_rounded, size: 13, color: AppColors.textSecondaryLight),
+                      const Icon(Icons.bookmark_border_rounded, size: 14, color: AppColors.textSecondaryLight),
                       const SizedBox(width: 3),
                       Text('${trip.duration} Days · $nights Nights',
-                          style: TextStyle(color: AppColors.textSecondaryLight, fontSize: 11)),
+                          style: TextStyle(color: AppColors.textSecondaryLight, fontSize: 12,fontWeight: FontWeight.w600)),
                     ],
                   ),
                   const SizedBox(height: 2),
                   Row(
                     children: [
-                      const Icon(Icons.directions_walk_rounded, size: 13, color: AppColors.textSecondaryLight),
+                      const Icon(Icons.directions_walk_rounded, size: 14, color: AppColors.textSecondaryLight),
                       const SizedBox(width: 3),
                       Text(_capitalize(trip.type),
-                          style: TextStyle(color: AppColors.textSecondaryLight, fontSize: 11)),
+                          style: TextStyle(color: AppColors.textSecondaryLight, fontSize: 12,fontWeight: FontWeight.w600)),
                     ],
                   ),
                   const SizedBox(height: AppSizes.xs),
@@ -103,13 +107,13 @@ class FeaturedTripCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text('PKR ${trip.price.toStringAsFixed(0)}',
-                          style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 14)),
+                          style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 15)),
                       Row(
                         children: [
                           const Icon(Icons.star_rounded, size: 14, color: Colors.amber),
                           const SizedBox(width: 2),
                           const Text('4.8', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
-                          const Text(' (230)', style: TextStyle(fontSize: 10, color: AppColors.textSecondaryLight)),
+                          const Text(' (230)', style: TextStyle(fontSize: 11,fontWeight: FontWeight.w600, color: AppColors.textSecondaryLight)),
                         ],
                       ),
                     ],

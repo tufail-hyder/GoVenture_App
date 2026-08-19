@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../models/trip_model.dart';
@@ -81,7 +80,7 @@ class HomeController extends GetxController {
       if (recentlyViewedTrips.isEmpty) recentlyViewedTrips.value = HomeMockData.trips(count: 3);
       if (topExperiences.isEmpty) topExperiences.value = HomeMockData.experiences();
       if (banner.value == null) banner.value = HomeMockData.banner();
-      if (blogPosts.isEmpty) blogPosts.value = HomeMockData.blogs();
+      if (blogPosts.isEmpty) blogPosts.value = HomeMockData.blogs(count: 3);
       if (upcomingBookings.isEmpty) upcomingBookings.value = HomeMockData.upcomingBookings();
     } finally {
       isLoading.value = false;

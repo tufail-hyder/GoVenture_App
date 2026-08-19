@@ -72,7 +72,7 @@ class HomeMockData {
     return List.generate(count, (i) {
       return BlogModel(
         id: 'mock_blog_$i',
-        title: 'Sample Blog Post ${i + 1}',
+        title: '10 Best Places to Visit in Pakistan ${i + 1}',
         slug: 'sample-blog-${i + 1}',
         coverImage: 'https://picsum.photos/seed/blog$i/200/150',
         category: 'Travel Guide',
@@ -88,7 +88,7 @@ class HomeMockData {
       return UpcomingBookingModel(
         id: 'mock_booking_$i',
         tripId: 'mock_trip_$i',
-        tripTitle: 'Sample Booked Trip ${i + 1}',
+        tripTitle: 'A Trip to Northern Areas (Gilgit Baltistan) ${i + 1}',//
         tripImage: 'https://picsum.photos/seed/booking$i/150/150',
         travelDate: DateTime.now().add(Duration(days: 10 + i)),
         status: AppTexts.bookingUpcoming,
