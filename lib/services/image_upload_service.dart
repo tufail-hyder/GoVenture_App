@@ -43,4 +43,35 @@ class ImageUploadService {
       return null;
     }
   }
+  /// PDF (ya koi bhi non-image file) Cloudinary par upload karta hai.
+  /// Firebase Storage ki jagah — same billing-free approach.
+  static Future<String?> uploadPdfBytes(
+      List<int> bytes, {
+        required String fileName,
+        String folder = 'itineraries',
+      }) async {
+    const allowedExt = ['pdf'];
+    final ext = fileName.split('.').last.toLowerCase();
+    if (!allowedExt.contains(ext)) {
+      throw Exception('Only PDF files are allowed.');
+    }
+    if (bytes.length > 10 * 1024 * 1024) { // 10MB limit
+      throw Exception('PDF size must be under 10MB.');
+    }
+
+    try {
+      final response = await _cloudinary.uploadFile(
+        CloudinaryFile.fromBytesData(
+          bytes,
+          identifier: fileName,
+          resourceType: CloudinaryResourceType.Auto,
+          folder: 'goventure/$folder',
+        ),
+      );
+      return response.secureUrl;
+    } catch (e) {
+      print('❌ PDF upload failed: $e');
+      return null;
+    }
+  }
 }

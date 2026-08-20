@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../tripdetails/screens/trip_detail_screen.dart';
 import '../controllers/home_controller.dart';
 import '../widget/blog_card_horizontal.dart';
 import '../widget/category_grid.dart';
@@ -68,7 +69,7 @@ class HomeScreen extends StatelessWidget {
                               width: 140,
                               child: DestinationMiniCard(
                                 trip: controller.popularTrips[i],
-                                onTap: () {},
+                                onTap: () => Get.to(() => TripDetailScreen(tripId: controller.popularTrips[i].id)),
                               ),
                             ),
                           ),
@@ -148,7 +149,7 @@ class HomeScreen extends StatelessWidget {
                                 trip: controller.featuredTrips[i],
                                 badgeText: badge.$1,
                                 badgeColor: badge.$2,
-                                onTap: () {},
+                                onTap: () => Get.to(() => TripDetailScreen(tripId: controller.featuredTrips[i].id)),
                               );
                             },
                           ),

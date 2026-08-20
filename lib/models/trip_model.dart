@@ -8,14 +8,32 @@ class ItineraryDay {
   ItineraryDay({required this.day, required this.title, required this.description});
 
   factory ItineraryDay.fromMap(Map<String, dynamic> map) => ItineraryDay(
-    day: map['day'] ?? 0,
+    day: _asInt(map['day']),
     title: map['title'] ?? '',
     description: map['description'] ?? '',
   );
 
   Map<String, dynamic> toMap() => {'day': day, 'title': title, 'description': description};
 }
-
+double _asDouble(dynamic value, {double fallback = 0}) {
+  if (value == null) return fallback;
+  if (value is num) return value.toDouble();
+  if (value is String) return double.tryParse(value.trim()) ?? fallback;
+  return fallback;
+}
+double? _asDoubleOrNull(dynamic value) {
+  if (value == null) return null;
+  if (value is num) return value.toDouble();
+  if (value is String) return double.tryParse(value.trim());
+  return null;
+}
+int _asInt(dynamic value, {int fallback = 0}) {
+  if (value == null) return fallback;
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  if (value is String) return int.tryParse(value.trim()) ?? fallback;
+  return fallback;
+}
 class TripModel {
   final String id;
   final String title;
@@ -44,6 +62,14 @@ class TripModel {
   final DateTime? updatedAt;
   final bool isTopExperience;
   final String experienceTag;
+  final List<String> highlights;
+  final String itineraryPdfUrl;
+  final String meetingPoint;
+  final double? latitude;
+  final double? longitude;
+  final List<DateTime> availableDates;
+  final int? totalSeats;
+  final int? bookedSeats;
 
   TripModel({
     required this.id,
@@ -73,6 +99,14 @@ class TripModel {
     this.updatedAt,
     this.isTopExperience = false,
     this.experienceTag = '',
+    this.highlights = const [],
+    this.itineraryPdfUrl = '',
+    this.meetingPoint = '',
+    this.latitude,
+    this.longitude,
+    this.availableDates = const [],
+    this.totalSeats,
+    this.bookedSeats,
   });
 
   factory TripModel.fromFirestore(DocumentSnapshot doc) {
@@ -82,11 +116,9 @@ class TripModel {
       title: data['title'] ?? '',
       slug: data['slug'] ?? '',
       location: data['location'] ?? '',
-      price: (data['price'] ?? 0).toDouble(),
-      originalPrice: data['originalPrice'] != null
-          ? (data['originalPrice'] as num).toDouble()
-          : null,
-      duration: data['duration'] ?? 0,
+      price: _asDouble(data['price']),
+      originalPrice: _asDoubleOrNull(data['originalPrice']),
+      duration: _asInt(data['duration']),
       type: data['type'] ?? '',
       coverImage: data['coverImage'] ?? '',
       gallery: List<String>.from(data['gallery'] ?? []),
@@ -99,16 +131,30 @@ class TripModel {
       mapEmbedUrl: data['mapEmbedUrl'] ?? '',
       isFeatured: data['isFeatured'] ?? false,
       isActive: data['isActive'] ?? false,
-      viewCount: data['viewCount'] ?? 0,
-      bookingsCount: data['bookingsCount'] ?? 0,
-      reviewCount: data['reviewCount'] ?? 0,
-      rating: (data['rating'] ?? 0).toDouble(),
+      viewCount: _asInt(data['viewCount']),
+      bookingsCount: _asInt(data['bookingsCount']),
+      reviewCount: _asInt(data['reviewCount']),
+      rating: _asDouble(data['rating']),
       tourMode: data['tourMode'] ?? 'group',
       hasTransfers: data['hasTransfers'] ?? false,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
       updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
       isTopExperience: data['isTopExperience'] ?? false,
       experienceTag: data['experienceTag'] ?? '',
+      highlights: List<String>.from(data['highlights'] ?? []),
+      itineraryPdfUrl: data['itineraryPdfUrl'] ?? '',
+      meetingPoint: data['meetingPoint'] ?? '',
+      latitude: _asDoubleOrNull(data['latitude']),
+      longitude: _asDoubleOrNull(data['longitude']),
+      availableDates: (data['availableDates'] as List<dynamic>? ?? [])
+          .map((t) => (t as Timestamp).toDate())
+          .toList(),
+      totalSeats: data['totalSeats'],
+      bookedSeats: data['bookedSeats'],
     );
+  }
+  int? get remainingSeats {
+    if (totalSeats == null) return null;
+    return totalSeats! - (bookedSeats ?? 0);
   }
 }

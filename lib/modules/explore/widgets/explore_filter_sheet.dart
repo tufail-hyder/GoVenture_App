@@ -60,7 +60,7 @@ class ExploreFilterSheet extends StatelessWidget {
                     Obx(() => Wrap(
                       spacing: AppSizes.sm,
                       runSpacing: AppSizes.sm,
-                      children: ExploreController.availableLocations.map((loc) {
+                      children: controller.availableLocations.map((loc) {
                         final selected = controller.selectedLocations.contains(loc);
                         return _FilterChip(
                           label: loc,
@@ -108,7 +108,7 @@ class ExploreFilterSheet extends StatelessWidget {
                     Obx(() => Wrap(
                       spacing: AppSizes.sm,
                       runSpacing: AppSizes.sm,
-                      children: ExploreController.availableTypes.map((type) {
+                      children: controller.availableTypes.map((type) {
                         final selected = controller.selectedTypes.contains(type);
                         return _FilterChip(
                           label: _capitalize(type),

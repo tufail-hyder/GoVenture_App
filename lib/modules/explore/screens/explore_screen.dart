@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:goventure/modules/home/widget/section_header.dart';
+import '../../tripdetails/screens/trip_detail_screen.dart';
 import '../controllers/explore_controller.dart';
 import '../widgets/category_chip.dart';
 import '../widgets/empty_state.dart';
@@ -21,6 +22,7 @@ class ExploreScreen extends StatefulWidget {
 class _ExploreScreenState extends State<ExploreScreen> {
   late final ExploreController controller;
   late final TextEditingController searchController;
+  final FocusNode _searchFocusNode = FocusNode();
 
   static const List<Map<String, dynamic>> _categories = [
     {'label': 'All', 'icon': Icons.grid_view_rounded},
@@ -38,11 +40,13 @@ class _ExploreScreenState extends State<ExploreScreen> {
     super.initState();
     controller = Get.put(ExploreController());
     searchController = TextEditingController(text: controller.searchQuery.value);
+    _searchFocusNode.addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
     searchController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -101,22 +105,36 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 decoration: BoxDecoration(
                   color: AppColors.surfaceLight,
                   borderRadius: BorderRadius.circular(AppTheme.radiusPill),
-                  border: Border.all(color: AppColors.dividerLight),
+                  border: Border.all(
+                    color: _searchFocusNode.hasFocus ? AppColors.primary : AppColors.dividerLight,
+                    width: _searchFocusNode.hasFocus ? 1.5 : 1,
+                  ),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.search_rounded, size: 20, color: AppColors.textSecondaryLight),
+                    Icon(
+                      Icons.search_rounded,
+                      size: 20,
+                      color: _searchFocusNode.hasFocus ? AppColors.primary : AppColors.textSecondaryLight,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: TextField(
                         controller: searchController,
+                        focusNode: _searchFocusNode,
                         onChanged: controller.setSearchQuery,
                         decoration: const InputDecoration(
                           hintText: 'Search tours',
                           hintStyle: TextStyle(fontSize: 15, color: AppColors.textSecondaryLight),
-                          border: InputBorder.none,
                           isDense: true,
                           contentPadding: EdgeInsets.symmetric(vertical: 12),
+                          filled: false,
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          disabledBorder: InputBorder.none,
+                          errorBorder: InputBorder.none,
+                          focusedErrorBorder: InputBorder.none,
                         ),
                         style: const TextStyle(fontSize: 13.5, color: AppColors.textPrimaryLight),
                       ),
@@ -190,7 +208,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   title:  controller.selectedCategory.value == 'All'
                       ? 'All Tours'
                       : '${controller.selectedCategory.value} Tours',
-                 )),
+                )),
               ),
             ),
 
@@ -218,9 +236,43 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 if (controller.isLoading.value) {
                   return const Center(child: CircularProgressIndicator());
                 }
+
+                // ---- Firestore fetch failed (network/permissions/etc) ----
+                if (controller.hasError.value) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppSizes.lg),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.cloud_off_rounded, size: 48, color: AppColors.textSecondaryLight),
+                          const SizedBox(height: AppSizes.sm),
+                          const Text(
+                            'Couldn\'t load tours',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimaryLight),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Please check your internet connection and try again.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 13, color: AppColors.textSecondaryLight),
+                          ),
+                          const SizedBox(height: AppSizes.md),
+                          ElevatedButton(
+                            onPressed: controller.refresh,
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                // ---- No trips match filters, or Firestore genuinely has none ----
                 if (controller.filteredTrips.isEmpty) {
                   return EmptyState(onReset: _resetEverything);
                 }
+
                 return RefreshIndicator(
                   onRefresh: controller.refresh,
                   child: ListView.builder(
@@ -231,9 +283,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                       return Obx(() => TourListCard(
                         trip: trip,
                         isFavorite: controller.favoriteTripIds.contains(trip.id),
-                        onTap: () {
-                          // TODO: navigate to Trip Detail screen once it exists.
-                        },
+                        onTap: () => Get.to(() => TripDetailScreen(tripId: trip.id)),
                         onFavoriteTap: () => controller.toggleFavorite(trip.id),
                       ));
                     },

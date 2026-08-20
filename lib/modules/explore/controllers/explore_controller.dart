@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../models/trip_model.dart';
 import '../../../services/trip_service.dart';
-import '../../home/mock/home_mock_data.dart';
 
 enum SortOption { priceLowHigh, priceHighLow, duration, popularity, newest, rating }
 
 class ExploreController extends GetxController {
   final RxBool isLoading = true.obs;
+  final RxBool hasError = false.obs;
   final RxList<TripModel> _allTrips = <TripModel>[].obs;
   final RxList<TripModel> filteredTrips = <TripModel>[].obs;
 
@@ -24,16 +24,9 @@ class ExploreController extends GetxController {
 
   final Rx<SortOption> sortOption = SortOption.popularity.obs;
 
-  static const List<String> availableLocations = [
-    'Hunza',
-    'Skardu',
-    'Fairy Meadows',
-    'Gilgit',
-    'Naltar',
-    'Swat',
-  ];
-
-  static const List<String> availableTypes = ['workcation', 'adventure', 'retreat'];
+  // ---------------- Dynamic filter options (Firestore trips se derive hote hain) ----------------
+  final RxList<String> availableLocations = <String>[].obs;
+  final RxList<String> availableTypes = <String>[].obs;
 
   @override
   void onInit() {
@@ -43,16 +36,14 @@ class ExploreController extends GetxController {
 
   Future<void> fetchTrips() async {
     isLoading.value = true;
+    hasError.value = false;
     try {
-      List<TripModel> trips = [];
-      try {
-        trips = await TripService.getAllTrips();
-      } catch (_) {
-        trips = [];
-      }
-      if (trips.isEmpty) trips = HomeMockData.trips(count: 12);
-
+      final trips = await TripService.getAllTrips();
       _allTrips.value = trips;
+
+      // ===== Locations/Types ab Firestore data se dynamically nikal rahe hain =====
+      availableLocations.value = trips.map((t) => t.location).where((l) => l.isNotEmpty).toSet().toList()..sort();
+      availableTypes.value = trips.map((t) => t.type).where((t) => t.isNotEmpty).toSet().toList()..sort();
 
       if (trips.isNotEmpty) {
         final prices = trips.map((t) => t.price).toList();
@@ -63,6 +54,14 @@ class ExploreController extends GetxController {
       }
 
       _applyFilters();
+    } catch (e, st) {
+      // ignore: avoid_print
+      print('ExploreController.fetchTrips ERROR: $e');
+      // ignore: avoid_print
+      print(st);
+      hasError.value = true;
+      _allTrips.value = [];
+      filteredTrips.value = [];
     } finally {
       isLoading.value = false;
     }
@@ -148,7 +147,6 @@ class ExploreController extends GetxController {
       return matchesLocation && matchesType && matchesDuration && matchesPrice && matchesSearch && matchesCategory;
     }).toList();
 
-
     switch (sortOption.value) {
       case SortOption.priceLowHigh:
         result.sort((a, b) => a.price.compareTo(b.price));
@@ -166,6 +164,7 @@ class ExploreController extends GetxController {
         result.sort(
               (a, b) => (b.createdAt ?? DateTime(2000)).compareTo(a.createdAt ?? DateTime(2000)),
         );
+        break;
       case SortOption.rating:
         result.sort((a, b) => b.rating.compareTo(a.rating));
         break;
