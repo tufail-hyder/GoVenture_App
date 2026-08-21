@@ -4,16 +4,38 @@ class ItineraryDay {
   final int day;
   final String title;
   final String description;
+  final List<String> activities;
+  final String location;
+  final List<String> images;
+  final String timeInfo;
 
-  ItineraryDay({required this.day, required this.title, required this.description});
+  ItineraryDay({
+    required this.day,
+    required this.title,
+    required this.description,
+    this.activities = const [],
+    this.location = '',
+    this.images = const [],
+    this.timeInfo = '',});
 
   factory ItineraryDay.fromMap(Map<String, dynamic> map) => ItineraryDay(
     day: _asInt(map['day']),
     title: map['title'] ?? '',
     description: map['description'] ?? '',
+    activities: List<String>.from(map['activities'] ?? []),
+    location: map['location'] ?? '',
+    images: List<String>.from(map['images'] ?? []),
+    timeInfo: map['timeInfo'] ?? '',
   );
 
-  Map<String, dynamic> toMap() => {'day': day, 'title': title, 'description': description};
+  Map<String, dynamic> toMap() => {
+    'day': day,
+    'title': title,
+    'description': description,
+    'activities': activities,
+    'location': location,
+    'images': images,
+    'timeInfo': timeInfo,};
 }
 double _asDouble(dynamic value, {double fallback = 0}) {
   if (value == null) return fallback;

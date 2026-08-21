@@ -7,20 +7,12 @@ class TripImageCarousel extends StatefulWidget {
   final List<String> images;
   final int currentIndex;
   final ValueChanged<int> onPageChanged;
-  final bool isFavorite;
-  final VoidCallback onFavoriteTap;
-  final VoidCallback onShareTap;
-  final VoidCallback onBackTap;
 
   const TripImageCarousel({
     super.key,
     required this.images,
     required this.currentIndex,
     required this.onPageChanged,
-    required this.isFavorite,
-    required this.onFavoriteTap,
-    required this.onShareTap,
-    required this.onBackTap,
   });
 
   @override
@@ -71,43 +63,6 @@ class _TripImageCarouselState extends State<TripImageCarousel> {
           ),
         ),
 
-        // ===== Top gradient (back/favorite/share icons readable rakhne ke liye) =====
-        Container(
-          height: 100,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Colors.black.withValues(alpha: 0.45), Colors.transparent],
-            ),
-          ),
-        ),
-
-        // ===== Back button =====
-        Positioned(
-          top: AppSizes.md,
-          left: AppSizes.md,
-          child: _CircleIconButton(icon: Icons.arrow_back_rounded, onTap: widget.onBackTap),
-        ),
-
-        // ===== Favorite + Share buttons =====
-        Positioned(
-          top: AppSizes.md,
-          right: AppSizes.md,
-          child: Row(
-            children: [
-              _CircleIconButton(icon: Icons.ios_share_rounded, onTap: widget.onShareTap),
-              const SizedBox(width: AppSizes.xs),
-              _CircleIconButton(
-                icon: widget.isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                iconColor: widget.isFavorite ? AppColors.favoriteRed : Colors.white,
-                onTap: widget.onFavoriteTap,
-              ),
-            ],
-          ),
-        ),
-
-        // ===== Dot indicator =====
         if (images.length > 1)
           Positioned(
             bottom: AppSizes.md,
@@ -127,30 +82,6 @@ class _TripImageCarouselState extends State<TripImageCarousel> {
             ),
           ),
       ],
-    );
-  }
-}
-
-class _CircleIconButton extends StatelessWidget {
-  final IconData icon;
-  final Color iconColor;
-  final VoidCallback onTap;
-
-  const _CircleIconButton({required this.icon, this.iconColor = Colors.white, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.35),
-          shape: BoxShape.circle,
-        ),
-        child: Icon(icon, size: 18, color: iconColor),
-      ),
     );
   }
 }

@@ -15,6 +15,8 @@ class TripDetailController extends GetxController {
   final RxBool isLoading = true.obs;
   final RxBool isFavorite = false.obs;
   final RxInt carouselIndex = 0.obs;
+  final Rx<DateTime?> selectedDate = Rx<DateTime?>(null);
+  void selectDate(DateTime date) => selectedDate.value = date;
 
   @override
   void onInit() {

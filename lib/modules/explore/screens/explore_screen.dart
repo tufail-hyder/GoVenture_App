@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:goventure/modules/home/widget/section_header.dart';
+import '../../customtours/screens/customize_tour_screen.dart';
 import '../../tripdetails/screens/trip_detail_screen.dart';
 import '../controllers/explore_controller.dart';
 import '../widgets/category_chip.dart';
@@ -162,6 +163,58 @@ class _ExploreScreenState extends State<ExploreScreen> {
                       ),
                     ),
                   ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: AppSizes.md),
+
+            // ---- Customize Your Own Tour — entry point banner ----
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSizes.md),
+              child: InkWell(
+                onTap: () => Get.to(() => const CustomizeTourScreen()),
+                borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+                child: Container(
+                  padding: const EdgeInsets.all(AppSizes.md),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [AppColors.primary, AppColors.primary.withValues(alpha: 0.75)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.18),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.edit_calendar_rounded, color: Colors.white, size: 22),
+                      ),
+                      const SizedBox(width: AppSizes.sm + 2),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Plan Your Own Tour',
+                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white),
+                            ),
+                            SizedBox(height: 2),
+                            Text(
+                              'Tell us your preferences and we\'ll design it for you',
+                              style: TextStyle(fontSize: 12, color: Colors.white70, fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.chevron_right_rounded, color: Colors.white, size: 24),
+                    ],
+                  ),
                 ),
               ),
             ),
