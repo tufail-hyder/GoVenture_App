@@ -98,6 +98,8 @@ class CustomTourController extends GetxController {
 
   final RxBool isSubmitting = false.obs;
 
+  // ---- Error flags for the custom picker fields (Start/End Date, Nationality)
+  // which aren't real TextFormFields, so Form.validate() can't catch them. ----
   final RxBool startDateError = false.obs;
   final RxBool endDateError = false.obs;
   final RxBool nationalityError = false.obs;

@@ -33,20 +33,37 @@ class TripMapSection extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppSizes.radiusMd),
           child: SizedBox(
             height: 180,
-            child: GoogleMap(
-              initialCameraPosition: CameraPosition(target: position, zoom: 12),
-              markers: {
-                Marker(
-                  markerId: const MarkerId('trip_location'),
-                  position: position,
-                  infoWindow: InfoWindow(title: location),
+            child: Stack(
+              children: [
+                IgnorePointer(
+                  child: GoogleMap(
+                    initialCameraPosition: CameraPosition(target: position, zoom: 12),
+                    markers: {
+                      Marker(
+                        markerId: const MarkerId('trip_location'),
+                        position: position,
+                        infoWindow: InfoWindow(title: location),
+                      ),
+                    },
+                    zoomGesturesEnabled: false,
+                    scrollGesturesEnabled: false,
+                    rotateGesturesEnabled: false,
+                    tiltGesturesEnabled: false,
+                    zoomControlsEnabled: false,
+                    myLocationButtonEnabled: false,
+                    liteModeEnabled: true,
+                  ),
                 ),
-              },
-              zoomControlsEnabled: false,
-              scrollGesturesEnabled: false, // list scroll ke sath conflict na ho, tap se full map khulega
-              onTap: (_) {
-                // Chahen to yahan se full-screen map screen par navigate kar sakte hain
-              },
+
+                Positioned.fill(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () {
+                      // Chahen to yahan full-screen map screen open kar sakte hain
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
         ),

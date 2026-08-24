@@ -14,6 +14,9 @@ String _formatDate(DateTime d) {
   return '${d.day.toString().padLeft(2, '0')} ${months[d.month - 1]} ${d.year}';
 }
 
+/// Resolves the right colors for the current brightness (light/dark) so this
+/// screen looks correct under either theme, without needing every color to
+/// already exist as a "Dark" variant in AppColors.
 class _Palette {
   final Color background;
   final Color surface;
@@ -79,7 +82,10 @@ class CustomizeTourScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: p.background,
         elevation: 0,
-        title: Text('Customize Your Tour', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: p.textPrimary),),
+        title: Text(
+          'Customize Your Tour',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: p.textPrimary),
+        ),
         iconTheme: IconThemeData(color: p.textPrimary),
       ),
       body: Form(
@@ -298,15 +304,39 @@ class CustomizeTourScreen extends StatelessWidget {
                   child: _TextInput(palette: p, controller: controller.accommodationPrefCtrl, hint: 'e.g. Hotel, guest house, camping'),
                 ),
                 const SizedBox(height: AppSizes.sm),
-                _LabeledField(palette: p, label: 'Transport', child: _TextInput(palette: p, controller: controller.transportPrefCtrl, hint: 'e.g. Private jeep, coaster'),),
+                _LabeledField(
+                  palette: p,
+                  label: 'Transport',
+                  child: _TextInput(palette: p, controller: controller.transportPrefCtrl, hint: 'e.g. Private jeep, coaster'),
+                ),
                 const SizedBox(height: AppSizes.sm),
-                _LabeledField(palette: p, label: 'Meals', child: _TextInput(palette: p, controller: controller.mealsPrefCtrl, hint: 'e.g. Halal only, vegetarian options'),),
+                _LabeledField(
+                  palette: p,
+                  label: 'Meals',
+                  child: _TextInput(palette: p, controller: controller.mealsPrefCtrl, hint: 'e.g. Halal only, vegetarian options'),
+                ),
                 const SizedBox(height: AppSizes.sm),
-                _LabeledField(palette: p, label: 'Activities', child: _TextInput(palette: p, controller: controller.activitiesPrefCtrl, hint: 'e.g. Hiking, photography, local culture'),),
+                _LabeledField(
+                  palette: p,
+                  label: 'Activities',
+                  child: _TextInput(palette: p, controller: controller.activitiesPrefCtrl, hint: 'e.g. Hiking, photography, local culture'),
+                ),
                 const SizedBox(height: AppSizes.sm),
-                _LabeledField(palette: p, label: 'Guide', child: _TextInput(palette: p, controller: controller.guidePrefCtrl, hint: 'e.g. English-speaking guide preferred'),),
+                _LabeledField(
+                  palette: p,
+                  label: 'Guide',
+                  child: _TextInput(palette: p, controller: controller.guidePrefCtrl, hint: 'e.g. English-speaking guide preferred'),
+                ),
                 const SizedBox(height: AppSizes.sm),
-                _LabeledField(palette: p, label: 'Special Requirements / Medical Conditions', child: _TextInput(palette: p, controller: controller.specialRequirementsCtrl, hint: 'Let us know if there\'s anything we should prepare for', maxLines: 3,),
+                _LabeledField(
+                  palette: p,
+                  label: 'Special Requirements / Medical Conditions',
+                  child: _TextInput(
+                    palette: p,
+                    controller: controller.specialRequirementsCtrl,
+                    hint: 'Let us know if there\'s anything we should prepare for',
+                    maxLines: 3,
+                  ),
                 ),
               ],
             ),

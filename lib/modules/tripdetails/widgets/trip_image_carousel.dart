@@ -50,9 +50,7 @@ class _TripImageCarouselState extends State<TripImageCarousel> {
             itemBuilder: (context, index) {
               final url = images[index];
               return url.isNotEmpty
-                  ? Image.network(
-                url,
-                fit: BoxFit.cover,
+                  ? Image.network(url, fit: BoxFit.fill,
                 errorBuilder: (_, __, ___) => Container(color: Colors.grey.shade300),
               )
                   : Container(
