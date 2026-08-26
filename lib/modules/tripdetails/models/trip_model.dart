@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:goventure/modules/tripdetails/models/trip_date_slot.dart';
 
 class ItineraryDay {
   final int day;
@@ -96,7 +97,7 @@ class TripModel {
   final String meetingPoint;
   final double? latitude;
   final double? longitude;
-  final List<DateTime> availableDates;
+  final List<TripDateSlot> availableDates;
   final int? totalSeats;
   final int? bookedSeats;
 
@@ -176,7 +177,8 @@ class TripModel {
       latitude: _asDoubleOrNull(data['latitude']),
       longitude: _asDoubleOrNull(data['longitude']),
       availableDates: (data['availableDates'] as List<dynamic>? ?? [])
-          .map((t) => (t as Timestamp).toDate())
+          .whereType<Map<String, dynamic>>()
+          .map((m) => TripDateSlot.fromMap(m))
           .toList(),
       totalSeats: data['totalSeats'],
       bookedSeats: data['bookedSeats'],

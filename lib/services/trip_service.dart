@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../core/constants/app_text.dart';
-import '../models/trip_model.dart';
+import '../modules/tripdetails/models/trip_model.dart';
 
 class TripService {
   static final CollectionReference _tripsRef =

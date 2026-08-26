@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:goventure/modules/tripdetails/screens/pdf_viewer_screen.dart';
+import 'package:intl/intl.dart';
 import '../controllers/trip_detail_controller.dart';
 import '../services/share_service.dart';
 import '../widgets/trip_available_dates_section.dart';
@@ -13,7 +14,8 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../widgets/trip_map_section.dart';
 import '../widgets/trip_reviews_section.dart';
-import '../../../models/trip_model.dart';
+import '../models/trip_model.dart';
+
 
 class TripDetailScreen extends StatelessWidget {
   final String tripId;
@@ -75,11 +77,19 @@ class _BookNowBar extends StatelessWidget {
       ),
       child: SafeArea(
         top: false,
-        child: ElevatedButton(
-          onPressed: isFullyBooked ? null : () {},
-          child: Text(
-            isFullyBooked ? 'Fully Booked' : 'Book Now',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        child: SizedBox(
+          height: 44,
+          width: double.infinity,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              padding: EdgeInsets.zero,
+              minimumSize: const Size(double.infinity, 44),
+            ),
+            onPressed: isFullyBooked ? null : () {},
+            child: Text(
+              isFullyBooked ? 'Fully Booked' : 'Book Now',
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+            ),
           ),
         ),
       ),
@@ -169,21 +179,18 @@ class _TripDetailBody extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.baseline,
                   textBaseline: TextBaseline.alphabetic,
                   children: [
-                    const Text('FROM ', style: TextStyle(fontSize: 11, color: AppColors.textSecondaryLight, fontWeight: FontWeight.w600)),
                     Text('PKR ${trip.price.toStringAsFixed(0)}',
                         style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.primary)),
                     if (trip.originalPrice != null && trip.originalPrice! > trip.price) ...[
                       const SizedBox(width: 8),
-                      Text(
-                        'PKR ${trip.originalPrice!.toStringAsFixed(0)}',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: AppColors.textSecondaryLight,
-                          decoration: TextDecoration.lineThrough,
-                        ),
-                      ),
+                      Text('PKR ${trip.originalPrice!.toStringAsFixed(0)}',
+                          style: const TextStyle(fontSize: 13, color: AppColors.textSecondaryLight, decoration: TextDecoration.lineThrough)),
                     ],
                   ],
+                ),const SizedBox(height: 2),
+                Text(
+                  '≈ \$${(trip.price / 279.0).toStringAsFixed(2)} USD',
+                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondaryLight, fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(height: AppSizes.sm),
 
@@ -202,24 +209,31 @@ class _TripDetailBody extends StatelessWidget {
                         style: const TextStyle(color: AppColors.textSecondaryLight, fontSize: 13, fontWeight: FontWeight.w600)),
                   ],
                 ),
-                if (trip.remainingSeats != null) ...[
-                  const SizedBox(height: AppSizes.sm),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: trip.remainingSeats! <= 5 ? AppColors.error.withValues(alpha: 0.1) : AppColors.primaryLight,
-                      borderRadius: BorderRadius.circular(AppSizes.radiusFull),
-                    ),
-                    child: Text(
-                      trip.remainingSeats! <= 0 ? 'Fully Booked' : '${trip.remainingSeats} seats left',
-                      style: TextStyle(
-                        color: trip.remainingSeats! <= 5 ? AppColors.error : AppColors.primary,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 12,
+                Obx(() {
+                  final slot = controller.selectedSlot.value;
+                  if (slot == null || slot.remainingSeats == null) return const SizedBox.shrink();
+                  final remaining = slot.remainingSeats!;
+                  return Padding(
+                    padding: const EdgeInsets.only(top: AppSizes.sm),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: remaining <= 5 ? AppColors.error.withValues(alpha: 0.1) : AppColors.primaryLight,
+                        borderRadius: BorderRadius.circular(AppSizes.radiusFull),
+                      ),
+                      child: Text(
+                        remaining <= 0
+                            ? 'Fully Booked for ${DateFormat('MMM d').format(slot.date)}'
+                            : '$remaining seats left for ${DateFormat('MMM d').format(slot.date)}',
+                        style: TextStyle(
+                          color: remaining <= 5 ? AppColors.error : AppColors.primary,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 12,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  );
+                }),
               ],
             ),
           ),
@@ -230,10 +244,10 @@ class _TripDetailBody extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TripDescriptionSection(description: trip.shortDescription),
-                const SizedBox(height: AppSizes.lg),
+                const SizedBox(height: AppSizes.md),
 
                 TripHighlightsSection(highlights: trip.highlights),
-                const SizedBox(height: AppSizes.lg),
+                const SizedBox(height: AppSizes.md),
 
                 TripItinerarySection(
                   itinerary: trip.itinerary,
@@ -243,10 +257,10 @@ class _TripDetailBody extends StatelessWidget {
                     Get.to(() => PdfViewerScreen(pdfUrl: trip.itineraryPdfUrl, title: trip.title));
                   },
                 ),
-                const SizedBox(height: AppSizes.lg),
+                const SizedBox(height: AppSizes.md),
 
                 TripInclusionsSection(inclusions: trip.inclusions, exclusions: trip.exclusions),
-                const SizedBox(height: AppSizes.lg),
+                const SizedBox(height: AppSizes.md),
 
                 TripMapSection(
                   latitude: trip.latitude,
@@ -254,12 +268,13 @@ class _TripDetailBody extends StatelessWidget {
                   location: trip.location,
                   meetingPoint: trip.meetingPoint,
                 ),
-                const SizedBox(height: AppSizes.lg),
+                const SizedBox(height: AppSizes.md),
 
                 Obx(() => TripAvailableDatesSection(
                   availableDates: trip.availableDates,
-                  selectedDate: controller.selectedDate.value,
-                  onDateSelected: controller.selectDate,
+                  selectedSlot: controller.selectedSlot.value,
+                  onSlotSelected: controller.selectSlot,
+                  duration: trip.duration,
                 )),
                 const SizedBox(height: AppSizes.lg),
 

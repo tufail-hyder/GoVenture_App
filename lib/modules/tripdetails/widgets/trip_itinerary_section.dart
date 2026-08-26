@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../models/trip_model.dart';
+import '../models/trip_model.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../services/pdf_service.dart';
@@ -191,27 +191,6 @@ class _ItineraryCardState extends State<_ItineraryCard> {
                         ],
                       ),
                     )),
-                  ],
-                  if (day.images.isNotEmpty) ...[
-                    const SizedBox(height: AppSizes.sm),
-                    SizedBox(
-                      height: 70,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: day.images.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: 6),
-                        itemBuilder: (_, i) => ClipRRect(
-                          borderRadius: BorderRadius.circular(AppSizes.radiusSm),
-                          child: Image.network(
-                            day.images[i],
-                            width: 90,
-                            height: 70,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Container(width: 90, color: Colors.grey.shade300),
-                          ),
-                        ),
-                      ),
-                    ),
                   ],
                 ],
               ),

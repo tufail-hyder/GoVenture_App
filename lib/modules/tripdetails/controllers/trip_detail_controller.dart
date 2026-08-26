@@ -1,10 +1,11 @@
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../../models/trip_model.dart';
 import '../../../models/review_model.dart';
 import '../../../services/trip_service.dart';
 import '../../../services/review_service.dart';
 import '../../../services/recently_viewed_service.dart';
+import '../models/trip_date_slot.dart';
+import '../models/trip_model.dart';
 
 class TripDetailController extends GetxController {
   final String tripId;
@@ -15,8 +16,9 @@ class TripDetailController extends GetxController {
   final RxBool isLoading = true.obs;
   final RxBool isFavorite = false.obs;
   final RxInt carouselIndex = 0.obs;
-  final Rx<DateTime?> selectedDate = Rx<DateTime?>(null);
-  void selectDate(DateTime date) => selectedDate.value = date;
+  final Rx<TripDateSlot?> selectedSlot = Rx<TripDateSlot?>(null);
+
+  void selectSlot(TripDateSlot slot) => selectedSlot.value = slot;
 
   @override
   void onInit() {
@@ -26,36 +28,26 @@ class TripDetailController extends GetxController {
 
   Future<void> _load() async {
     isLoading.value = true;
-
-    // ---- Trip and reviews are fetched independently: if the reviews query
-    // fails (missing index, bad data, etc.) it no longer prevents the trip
-    // itself from loading and being shown. ----
     try {
-      trip.value = await TripService.getTripById(tripId);
-    } catch (e) {
-      trip.value = null;
+      final results = await Future.wait([
+        TripService.getTripById(tripId),
+        ReviewService.getReviewsForTrip(tripId),
+      ]);
+      trip.value = results[0] as TripModel?;
+      reviews.value = results[1] as List<ReviewModel>;
+
+      // ===== Default: pehli available date select ho jaye =====
+      if (trip.value != null && trip.value!.availableDates.isNotEmpty) {
+        selectedSlot.value = trip.value!.availableDates.first;
+      }
+
+      await RecentlyViewedService.addTripId(tripId);
+    } finally {
+      isLoading.value = false;
     }
-
-    try {
-      reviews.value = await ReviewService.getReviewsForTrip(tripId);
-    } catch (e) {
-      reviews.value = [];
-    }
-
-    // ---- This MUST come before the "recently viewed" call below. Recording
-    // a recently-viewed trip is a non-critical side effect — it should never
-    // be able to block the loading spinner from resolving. Previously it was
-    // awaited inside the same try/finally as the trip fetch, so if this call
-    // ever hung (offline, slow network, etc.) isLoading.value never flipped
-    // to false and the screen was stuck on the spinner forever. ----
-    isLoading.value = false;
-
-    // Fire-and-forget: run in the background, swallow any failure.
-    RecentlyViewedService.addTripId(tripId).catchError((_) {});
   }
 
   void toggleFavorite() {
-    // TODO: Firestore ke `users/{uid}/favorites` collection ke sath persist karna
     isFavorite.value = !isFavorite.value;
   }
 

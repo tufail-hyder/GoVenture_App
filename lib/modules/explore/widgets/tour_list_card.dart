@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../models/trip_model.dart';
+import '../../tripdetails/models/trip_model.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
 import 'card_image.dart';

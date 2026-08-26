@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../models/trip_model.dart';
+import '../../tripdetails/models/trip_model.dart';
 import '../../../services/trip_service.dart';
 
 enum SortOption { priceLowHigh, priceHighLow, duration, popularity, newest, rating }

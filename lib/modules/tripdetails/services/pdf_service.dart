@@ -12,10 +12,6 @@ class PdfService {
       if (await _looksLikePdf(file)) {
         return filePath;
       }
-      // Stale/bad cached file — e.g. a Cloudinary placeholder image saved
-      // before the account setting was fixed, or a leftover error page
-      // from an earlier failed attempt. A size-only check would happily
-      // reuse this forever, so don't trust it — delete and re-download.
       await file.delete();
     }
 
@@ -40,11 +36,6 @@ class PdfService {
     return filePath;
   }
 
-  /// Checks the first bytes of the file for the "%PDF" magic header that
-  /// every real PDF starts with. This is the actual source of truth —
-  /// file size and Content-Type headers can both lie (a placeholder image
-  /// is non-empty and some servers mislabel content types), but a genuine
-  /// PDF always starts with these 4 bytes.
   static Future<bool> _looksLikePdf(File file) async {
     if (!await file.exists()) return false;
     final length = await file.length();
@@ -72,8 +63,6 @@ class PdfService {
       await downloaded.delete();
       throw Exception(
         'The server returned "$contentType" instead of a PDF. '
-            'If this is a Cloudinary URL, check that "Allow delivery of PDF and '
-            'ZIP files" is enabled under Settings > Security in the Cloudinary console.',
       );
     }
   }

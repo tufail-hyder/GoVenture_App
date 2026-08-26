@@ -1,5 +1,5 @@
 import 'package:share_plus/share_plus.dart';
-import '../../../models/trip_model.dart';
+import '../models/trip_model.dart';
 
 class ShareService {
   static Future<void> shareTrip(TripModel trip) async {

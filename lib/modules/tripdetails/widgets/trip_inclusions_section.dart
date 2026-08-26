@@ -23,6 +23,8 @@ class TripInclusionsSection extends StatelessWidget {
           ...inclusions.map((item) => _FeatureRow(icon: Icons.check_circle_rounded, color: AppColors.primary, text: item)),
 
         if (exclusions.isNotEmpty) ...[
+          SizedBox(height: inclusions.isNotEmpty ? AppSizes.sm : 0),
+          const TripSectionTitle('Not Included'),
           const SizedBox(height: AppSizes.sm),
           ...exclusions.map((item) => _FeatureRow(icon: Icons.cancel_rounded, color: AppColors.error, text: item)),
         ],

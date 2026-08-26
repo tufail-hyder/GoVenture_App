@@ -1,4 +1,4 @@
-import '../../../models/trip_model.dart';
+import '../../tripdetails/models/trip_model.dart';
 import '../../../models/banner_model.dart';
 import '../../../models/blog_model.dart';
 import '../../../models/upcoming_booking_model.dart';
