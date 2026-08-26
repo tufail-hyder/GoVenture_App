@@ -114,7 +114,7 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: primary,
           foregroundColor: Colors.white,
-          minimumSize: const Size.fromHeight(52),
+          minimumSize: const Size(double.infinity, 56),
           elevation: 0,
           textStyle: themedTextTheme.titleMedium?.copyWith(
             color: Colors.white,

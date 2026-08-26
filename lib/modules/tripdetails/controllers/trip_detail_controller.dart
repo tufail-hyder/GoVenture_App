@@ -26,18 +26,32 @@ class TripDetailController extends GetxController {
 
   Future<void> _load() async {
     isLoading.value = true;
-    try {
-      final results = await Future.wait([
-        TripService.getTripById(tripId),
-        ReviewService.getReviewsForTrip(tripId),
-      ]);
-      trip.value = results[0] as TripModel?;
-      reviews.value = results[1] as List<ReviewModel>;
 
-      await RecentlyViewedService.addTripId(tripId);
-    } finally {
-      isLoading.value = false;
+    // ---- Trip and reviews are fetched independently: if the reviews query
+    // fails (missing index, bad data, etc.) it no longer prevents the trip
+    // itself from loading and being shown. ----
+    try {
+      trip.value = await TripService.getTripById(tripId);
+    } catch (e) {
+      trip.value = null;
     }
+
+    try {
+      reviews.value = await ReviewService.getReviewsForTrip(tripId);
+    } catch (e) {
+      reviews.value = [];
+    }
+
+    // ---- This MUST come before the "recently viewed" call below. Recording
+    // a recently-viewed trip is a non-critical side effect — it should never
+    // be able to block the loading spinner from resolving. Previously it was
+    // awaited inside the same try/finally as the trip fetch, so if this call
+    // ever hung (offline, slow network, etc.) isLoading.value never flipped
+    // to false and the screen was stuck on the spinner forever. ----
+    isLoading.value = false;
+
+    // Fire-and-forget: run in the background, swallow any failure.
+    RecentlyViewedService.addTripId(tripId).catchError((_) {});
   }
 
   void toggleFavorite() {

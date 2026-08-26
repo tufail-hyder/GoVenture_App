@@ -26,7 +26,7 @@ class TripAvailableDatesSection extends StatelessWidget {
         const TripSectionTitle('Available Dates'),
         const SizedBox(height: AppSizes.sm + 2),
         SizedBox(
-          height: 68,
+          height: 78,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: availableDates.length,
@@ -59,6 +59,10 @@ class TripAvailableDatesSection extends StatelessWidget {
                           style: TextStyle(
                               color: isSelected ? Colors.white70 : AppColors.textSecondaryLight,
                               fontSize: 10)),
+                      Text(DateFormat('yyyy').format(date),
+                          style: TextStyle(
+                              color: isSelected ? Colors.white70 : AppColors.textSecondaryLight,
+                              fontSize: 9)),
                     ],
                   ),
                 ),

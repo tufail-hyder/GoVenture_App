@@ -35,7 +35,8 @@ class TripMapSection extends StatelessWidget {
             height: 180,
             child: Stack(
               children: [
-                IgnorePointer(
+                AbsorbPointer(
+                  absorbing: true,
                   child: GoogleMap(
                     initialCameraPosition: CameraPosition(target: position, zoom: 12),
                     markers: {
@@ -45,6 +46,7 @@ class TripMapSection extends StatelessWidget {
                         infoWindow: InfoWindow(title: location),
                       ),
                     },
+                    gestureRecognizers: const {},
                     zoomGesturesEnabled: false,
                     scrollGesturesEnabled: false,
                     rotateGesturesEnabled: false,
@@ -54,12 +56,11 @@ class TripMapSection extends StatelessWidget {
                     liteModeEnabled: true,
                   ),
                 ),
-
                 Positioned.fill(
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: () {
-                      // Chahen to yahan full-screen map screen open kar sakte hain
+
                     },
                   ),
                 ),

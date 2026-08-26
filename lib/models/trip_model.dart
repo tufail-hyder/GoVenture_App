@@ -24,7 +24,7 @@ class ItineraryDay {
     description: map['description'] ?? '',
     activities: List<String>.from(map['activities'] ?? []),
     location: map['location'] ?? '',
-    images: List<String>.from(map['images'] ?? []),
+    images: _asStringList(map['images']),
     timeInfo: map['timeInfo'] ?? '',
   );
 
@@ -36,6 +36,13 @@ class ItineraryDay {
     'location': location,
     'images': images,
     'timeInfo': timeInfo,};
+}
+
+List<String> _asStringList(dynamic value) {
+  if (value == null) return [];
+  if (value is List) return List<String>.from(value);
+  if (value is String) return value.isNotEmpty ? [value] : [];
+  return [];
 }
 double _asDouble(dynamic value, {double fallback = 0}) {
   if (value == null) return fallback;
