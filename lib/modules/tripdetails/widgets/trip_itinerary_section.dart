@@ -117,13 +117,18 @@ class _ItineraryCardState extends State<_ItineraryCard> {
   @override
   Widget build(BuildContext context) {
     final day = widget.day;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final surface = isDark ? AppColors.surfaceDark : AppColors.surfaceLight;
+    final divider = isDark ? AppColors.dividerDark : AppColors.dividerLight;
+    final textPrimary = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+    final textSecondary = isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
 
     return Container(
       margin: const EdgeInsets.only(bottom: AppSizes.sm),
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
+        color: surface,
         borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-        border: Border.all(color: AppColors.dividerLight),
+        border: Border.all(color: divider),
       ),
       child: Column(
         children: [
@@ -133,6 +138,7 @@ class _ItineraryCardState extends State<_ItineraryCard> {
             child: Padding(
               padding: const EdgeInsets.all(AppSizes.sm + 2),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
                     width: 32,
@@ -146,15 +152,24 @@ class _ItineraryCardState extends State<_ItineraryCard> {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text('Day ${day.day} — ${day.title}',
-                            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5, color: AppColors.textPrimaryLight)),
+                          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5, height: 1.1, color: textPrimary),
+                        ),
+                        const SizedBox(height: AppSizes.xs),
                         if (day.timeInfo.isNotEmpty)
-                          Text(day.timeInfo, style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondaryLight)),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Text(
+                              day.timeInfo,
+                              style: TextStyle(fontSize: 13, height: 1.0, color: textSecondary),
+                            ),
+                          ),
                       ],
                     ),
                   ),
-                  Icon(_expanded ? Icons.expand_less_rounded : Icons.expand_more_rounded, color: AppColors.textSecondaryLight),
+                  Icon(_expanded ? Icons.expand_less_rounded : Icons.expand_more_rounded, color: textSecondary),
                 ],
               ),
             ),
@@ -165,29 +180,47 @@ class _ItineraryCardState extends State<_ItineraryCard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Divider(height: 1),
+                  Divider(height: 1, color: divider),
                   const SizedBox(height: AppSizes.sm),
-                  Text(day.description, style: const TextStyle(fontSize: 13, color: AppColors.textSecondaryLight, height: 1.4)),
+                  Text(day.description, style: TextStyle(fontSize: 14, color: textSecondary, height: 1.4)),
                   if (day.location.isNotEmpty) ...[
                     const SizedBox(height: AppSizes.sm),
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.location_on_rounded, size: 14, color: AppColors.primary),
+                        const Padding(
+                          padding: EdgeInsets.only(top: 1.5),
+                          child: Icon(Icons.location_on_rounded, size: 16, color: AppColors.primary),
+                        ),
                         const SizedBox(width: 3),
-                        Expanded(child: Text(day.location, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600))),
+                        Expanded(
+                          child: Text(
+                            day.location,
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: textPrimary, height: 1.3),
+                          ),
+                        ),
                       ],
                     ),
                   ],
                   if (day.activities.isNotEmpty) ...[
                     const SizedBox(height: AppSizes.sm),
                     ...day.activities.map((a) => Padding(
-                      padding: const EdgeInsets.only(bottom: 4),
+                      padding: const EdgeInsets.only(bottom: 6),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(Icons.circle, size: 5, color: AppColors.primary),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 6),
+                            child: Container(
+                              width: 5,
+                              height: 5,
+                              decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+                            ),
+                          ),
                           const SizedBox(width: 6),
-                          Expanded(child: Text(a, style: const TextStyle(fontSize: 12.5, color: AppColors.textPrimaryLight))),
+                          Expanded(
+                            child: Text(a, style: TextStyle(fontSize: 13, color: textPrimary, height: 1.3)),
+                          ),
                         ],
                       ),
                     )),

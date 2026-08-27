@@ -44,6 +44,8 @@ class TripMapSection extends StatelessWidget {
     if (latitude == null || longitude == null) return const SizedBox.shrink();
 
     final position = LatLng(latitude!, longitude!);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textSecondary = isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,7 +78,7 @@ class TripMapSection extends StatelessWidget {
                 Positioned.fill(
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
-                    onTap: _openInMapsApp,   // <-- YAHAN — tap se Maps app khulti hai
+                    onTap: _openInMapsApp,
                   ),
                 ),
                 // ===== Small hint badge — user ko pata chale tap-able hai =====
@@ -108,7 +110,7 @@ class TripMapSection extends StatelessWidget {
               const SizedBox(width: 4),
               Expanded(
                 child: Text('Meeting Point: $meetingPoint',
-                    style: const TextStyle(fontSize: 13, color: AppColors.textSecondaryLight, fontWeight: FontWeight.w600)),
+                    style: TextStyle(fontSize: 13, color: textSecondary, fontWeight: FontWeight.w600)),
               ),
             ],
           ),

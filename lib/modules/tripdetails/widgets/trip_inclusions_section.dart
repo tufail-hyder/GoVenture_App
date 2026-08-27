@@ -42,6 +42,9 @@ class _FeatureRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textPrimary = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Row(
@@ -49,7 +52,7 @@ class _FeatureRow extends StatelessWidget {
         children: [
           Icon(icon, size: 18, color: color),
           const SizedBox(width: AppSizes.sm),
-          Expanded(child: Text(text, style: const TextStyle(fontSize: 13.5, color: AppColors.textPrimaryLight, height: 1.4))),
+          Expanded(child: Text(text, style: TextStyle(fontSize: 14, color: textPrimary, height: 1.4))),
         ],
       ),
     );

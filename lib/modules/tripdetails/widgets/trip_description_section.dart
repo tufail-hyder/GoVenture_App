@@ -18,16 +18,19 @@ class _TripDescriptionSectionState extends State<TripDescriptionSection> {
   Widget build(BuildContext context) {
     if (widget.description.trim().isEmpty) return const SizedBox.shrink();
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textSecondary = isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TripSectionTitle('About This Trip'),
-        const SizedBox(height: AppSizes.sm),
+        const SizedBox(height: AppSizes.xs),
         Text(
           widget.description,
           maxLines: _expanded ? null : 4,
           overflow: _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 14, color: AppColors.textSecondaryLight, height: 1.5),
+          style: TextStyle(fontSize: 14, color: textSecondary, height: 1.3),
         ),
         if (widget.description.length > 180)
           GestureDetector(

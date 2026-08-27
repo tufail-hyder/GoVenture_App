@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../../models/review_model.dart';
+import '../models/review_model.dart';
 import '../../../services/trip_service.dart';
 import '../../../services/review_service.dart';
 import '../../../services/recently_viewed_service.dart';
@@ -54,4 +54,28 @@ class TripDetailController extends GetxController {
   void setCarouselIndex(int index) => carouselIndex.value = index;
 
   bool get isLoggedIn => FirebaseAuth.instance.currentUser != null;
+
+  Future<void> submitReview({required double rating, required String comment}) async {
+    final user = FirebaseAuth.instance.currentUser;
+    await ReviewService.addReview(
+      tripId: tripId,
+      userId: user?.uid ?? '',
+      userName: user?.displayName ?? user?.email?.split('@').first ?? 'Traveler',
+      userPhoto: user?.photoURL ?? '',
+      rating: rating,
+      comment: comment,
+    );
+    reviews.value = await ReviewService.getReviewsForTrip(tripId);
+  }
+
+  Future<void> updateReview({required String reviewId, required double rating, required String comment}) async {
+    await ReviewService.updateReview(tripId: tripId, reviewId: reviewId, rating: rating, comment: comment);
+    reviews.value = await ReviewService.getReviewsForTrip(tripId);
+  }
+
+  Future<void> deleteReview({required String reviewId}) async {
+    await ReviewService.deleteReview(tripId: tripId, reviewId: reviewId);
+    reviews.value = await ReviewService.getReviewsForTrip(tripId);
+  }
+
 }

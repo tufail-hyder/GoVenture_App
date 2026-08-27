@@ -11,6 +11,9 @@ class TripHighlightsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     if (highlights.isEmpty) return const SizedBox.shrink();
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textPrimary = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -22,17 +25,16 @@ class TripHighlightsSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                margin: const EdgeInsets.only(top: 3),
-                width: 20,
-                height: 20,
+                margin: const EdgeInsets.only(top: 2),
+                width: 18,
+                height: 18,
                 decoration: const BoxDecoration(color: AppColors.primaryLight, shape: BoxShape.circle),
                 child: const Icon(Icons.check_rounded, size: 13, color: AppColors.primary),
               ),
               const SizedBox(width: AppSizes.sm),
               Expanded(
-                child: Text(
-                  h,
-                  style: const TextStyle(fontSize: 13.5, color: AppColors.textPrimaryLight, height: 1.4),
+                child: Text(h,
+                  style: TextStyle(fontSize: 14, color: textPrimary, height: 1.7),
                 ),
               ),
             ],
