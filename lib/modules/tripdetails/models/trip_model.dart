@@ -100,6 +100,9 @@ class TripModel {
   final List<TripDateSlot> availableDates;
   final int? totalSeats;
   final int? bookedSeats;
+  final double? childPrice;
+  final double? childPricePercent;
+  final bool infantsFree;
 
   TripModel({
     required this.id,
@@ -137,6 +140,9 @@ class TripModel {
     this.availableDates = const [],
     this.totalSeats,
     this.bookedSeats,
+    this.childPrice,
+    this.childPricePercent,
+    this.infantsFree = true,
   });
 
   factory TripModel.fromFirestore(DocumentSnapshot doc) {
@@ -182,10 +188,18 @@ class TripModel {
           .toList(),
       totalSeats: data['totalSeats'],
       bookedSeats: data['bookedSeats'],
+      childPrice: _asDoubleOrNull(data['childPrice']),
+      childPricePercent: _asDoubleOrNull(data['childPricePercent']),
+      infantsFree: data['infantsFree'] ?? true,
     );
   }
   int? get remainingSeats {
     if (totalSeats == null) return null;
     return totalSeats! - (bookedSeats ?? 0);
+  }
+  double get effectiveChildPrice {
+    if (childPrice != null) return childPrice!;
+    if (childPricePercent != null) return price * childPricePercent!;
+    return price * 0.75;
   }
 }

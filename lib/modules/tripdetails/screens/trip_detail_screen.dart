@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:goventure/modules/tripdetails/screens/pdf_viewer_screen.dart';
 import 'package:intl/intl.dart';
 import '../../../services/exchange_rate_services.dart';
+import '../../booking/screens/booking_screen.dart';
 import '../controllers/trip_detail_controller.dart';
 import '../models/review_model.dart';
 import '../services/share_service.dart';
@@ -134,7 +135,9 @@ class _BookNowBar extends StatelessWidget {
               padding: EdgeInsets.zero,
               minimumSize: const Size(double.infinity, 44),
             ),
-            onPressed: isFullyBooked ? null : () {},
+            onPressed: isFullyBooked
+                ? null
+                : () => Get.to(() => BookingScreen(trip: trip)),
             child: Text(
               isFullyBooked ? 'Fully Booked' : 'Book Now',
               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
