@@ -15,7 +15,7 @@ class LabeledField extends StatelessWidget {
       children: [
         RichText(
           text: TextSpan(
-            style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: palette.textSecondary),
+            style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: palette.textSecondary,fontFamily: "TimesNewRoman"),
             children: [
               TextSpan(text: label),
               if (required) const TextSpan(text: ' *', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w800)),

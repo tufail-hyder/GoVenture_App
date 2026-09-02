@@ -2,19 +2,36 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../services/booking_service.dart';
+import '../../../services/review_service.dart';
 import '../../tripdetails/models/trip_date_slot.dart';
 import '../../tripdetails/models/trip_model.dart';
 import '../models/booking_draft.dart';
 import '../models/booking_model.dart';
 
+enum PaymentStatus {
+  pending,
+  paid,
+  failed,
+  refunded,
+}
+
+PaymentStatus paymentStatusFromString(String value) {
+  return PaymentStatus.values.firstWhere(
+        (e) => e.name == value,
+    orElse: () => PaymentStatus.pending,
+  );
+}
+
 class BookingController extends GetxController {
   final TripModel trip;
-  BookingController(this.trip);
+  final DateTime? initialDate;
+  BookingController(this.trip, {this.initialDate});
 
   final Rx<BookingDraft> draft = BookingDraft().obs;
-  final Rx<DateTime> visibleMonth = DateTime.now().obs;
 
-  static const double _taxRate = 0.03;
+  // ---- Header rating/reviews ----
+  final RxDouble liveRating = 0.0.obs;
+  final RxInt liveReviewCount = 0.obs;
 
   // ---- Step 2: Customer Information ----
   final fullNameCtrl = TextEditingController();
@@ -29,13 +46,17 @@ class BookingController extends GetxController {
   final Rxn<String> phoneError = Rxn<String>();
 
   final RxBool isCreatingBooking = false.obs;
+  final RxString createdBookingId = ''.obs;
 
   @override
   void onInit() {
     super.onInit();
-    if (trip.availableDates.isNotEmpty) {
+
+
+    if (initialDate != null) {
+      draft.value = draft.value.copyWith(selectedDate: initialDate);
+    } else if (trip.availableDates.isNotEmpty) {
       draft.value = draft.value.copyWith(selectedDate: trip.availableDates.first.date);
-      visibleMonth.value = DateTime(trip.availableDates.first.date.year, trip.availableDates.first.date.month);
     }
 
     final user = FirebaseAuth.instance.currentUser;
@@ -51,6 +72,26 @@ class BookingController extends GetxController {
     phoneCtrl.addListener(() {
       if (phoneError.value != null && phoneCtrl.text.trim().isNotEmpty) phoneError.value = null;
     });
+
+    _loadLiveRating();
+  }
+
+  Future<void> _loadLiveRating() async {
+    try {
+      final reviews = await ReviewService.getReviewsForTrip(trip.id);
+      if (reviews.isEmpty) return;
+      liveRating.value = reviews.map((r) => r.rating).reduce((a, b) => a + b) / reviews.length;
+      liveReviewCount.value = reviews.length;
+    } catch (_) {
+
+    }
+  }
+  // ---- Calendar month navigation ----
+  final Rx<DateTime> visibleMonth = DateTime.now().obs;
+
+  void changeMonth(int delta) {
+    final next = DateTime(visibleMonth.value.year, visibleMonth.value.month + delta, 1);
+    visibleMonth.value = next;
   }
 
   @override
@@ -76,34 +117,15 @@ class BookingController extends GetxController {
     }
   }
 
-  void selectDate(DateTime date) {
-    draft.value = draft.value.copyWith(selectedDate: date);
-  }
+  void selectDate(DateTime date) => draft.value = draft.value.copyWith(selectedDate: date);
+  void setAdults(int value) { if (value >= 1) draft.value = draft.value.copyWith(adults: value); }
+  void setChildren(int value) { if (value >= 0) draft.value = draft.value.copyWith(children: value); }
+  void setInfants(int value) { if (value >= 0) draft.value = draft.value.copyWith(infants: value); }
 
-  void changeMonth(int delta) {
-    visibleMonth.value = DateTime(visibleMonth.value.year, visibleMonth.value.month + delta);
-  }
 
-  void setAdults(int value) {
-    if (value < 1) return;
-    draft.value = draft.value.copyWith(adults: value);
-  }
-
-  void setChildren(int value) {
-    if (value < 0) return;
-    draft.value = draft.value.copyWith(children: value);
-  }
-
-  void setInfants(int value) {
-    if (value < 0) return;
-    draft.value = draft.value.copyWith(infants: value);
-  }
-
-  // ===== Price Breakdown =====
   double get adultTotal => trip.price * draft.value.adults;
   double get childTotal => trip.effectiveChildPrice * draft.value.children;
-  double get taxesAndFees => (adultTotal + childTotal) * _taxRate;
-  double get grandTotal => adultTotal + childTotal + taxesAndFees;
+  double get grandTotal => adultTotal + childTotal;
 
   bool get canProceed {
     final slot = selectedSlot;
@@ -112,10 +134,6 @@ class BookingController extends GetxController {
     return true;
   }
 
-  /// Validates Step 2 fields, writes them into [draft], creates the
-  /// booking doc in Firestore with paymentStatus/bookingStatus = pending,
-  /// and returns the new booking id — or null if validation failed or the
-  /// user isn't signed in.
   Future<String?> submitCustomerInfo() async {
     final email = emailCtrl.text.trim();
     final emailOk = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email);
@@ -127,9 +145,6 @@ class BookingController extends GetxController {
     if (fullNameError.value != null || emailError.value != null || phoneError.value != null) {
       return null;
     }
-
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return null;
 
     draft.value = draft.value.copyWith(
       fullName: fullNameCtrl.text.trim(),
@@ -143,6 +158,8 @@ class BookingController extends GetxController {
     final d = draft.value;
     if (d.selectedDate == null) return null;
 
+    final uid = FirebaseAuth.instance.currentUser?.uid ?? 'guest';
+
     isCreatingBooking.value = true;
     try {
       final booking = BookingModel(
@@ -150,7 +167,9 @@ class BookingController extends GetxController {
         tripId: trip.id,
         tripTitle: trip.title,
         tripCoverImage: trip.coverImage,
-        userId: user.uid,
+        tripLocation: trip.location,
+        tripDuration: trip.duration,
+        userId: uid,
         fullName: d.fullName,
         email: d.email,
         phone: d.phone,
@@ -163,7 +182,6 @@ class BookingController extends GetxController {
         infants: d.infants,
         adultTotal: adultTotal,
         childTotal: childTotal,
-        taxesAndFees: taxesAndFees,
         grandTotal: grandTotal,
         currency: 'PKR',
         paymentMethod: null,
@@ -171,7 +189,10 @@ class BookingController extends GetxController {
         bookingStatus: 'pending',
         createdAt: null,
       );
-      // return await BookingService.createPendingBooking(booking);
+
+      final id = await BookingService.createPendingBooking(booking);
+      createdBookingId.value = id;
+      return id;
     } catch (_) {
       return null;
     } finally {

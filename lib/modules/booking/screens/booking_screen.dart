@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../tripdetails/models/trip_model.dart';
 import '../controllers/booking_controller.dart';
 import '../widgets/booking_calendar.dart';
@@ -10,11 +11,12 @@ import 'customer_info_screen.dart';
 
 class BookingScreen extends StatelessWidget {
   final TripModel trip;
-  const BookingScreen({super.key, required this.trip});
+  final DateTime? initialDate;
+  const BookingScreen({super.key, required this.trip, this.initialDate});
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(BookingController(trip));
+    final controller = Get.put(BookingController(trip, initialDate: initialDate));
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final background = isDark ? AppColors.backgroundDark : AppColors.backgroundLight;
@@ -46,53 +48,127 @@ class BookingScreen extends StatelessWidget {
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.only(bottom: 90),
+        padding: const EdgeInsets.only(bottom: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ===== Trip Summary Card =====
             Padding(
-              padding: const EdgeInsets.all(AppSizes.md),
+              padding: const EdgeInsets.all(AppSizes.sm),
               child: Container(
-                decoration: BoxDecoration(color: surface, borderRadius: BorderRadius.circular(AppSizes.radiusLg)),
+                decoration: BoxDecoration(
+                  color: surface,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(
+                    color: AppColors.primary.withValues(alpha: 0.08),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.06),
+                      blurRadius: 16,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+                  borderRadius: BorderRadius.circular(18),
                   child: IntrinsicHeight(
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         SizedBox(
-                          width: 140,
-                          height: 170,
-                          child: trip.coverImage.isNotEmpty
-                              ? Image.network(trip.coverImage, fit: BoxFit.cover)
-                              : Container(color: Colors.grey.shade300),
+                          width: 125,
+                          height: 150,
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              trip.coverImage.isNotEmpty ? Image.network(trip.coverImage, fit: BoxFit.cover,)
+                                  : Container(
+                                color: Colors.grey.shade300,
+                                child: const Icon(Icons.image_outlined, size: 35, color: Colors.grey,),
+                              ),
+
+                              // Subtle bottom gradient
+                              Positioned(left: 0, right: 0, bottom: 0, height: 55,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                        Colors.transparent,
+                                        Colors.black.withValues(alpha: 0.30),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
+                        // TRIP DETAILS
                         Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.fromLTRB(14, 6, 14, 6),
+                            padding: const EdgeInsets.fromLTRB(14, 12, 12, 11,),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                // TITLE
                                 Text(trip.title, maxLines: 2, overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(fontWeight: FontWeight.w800, fontSize: 20, color: textPrimary)),
-                                const SizedBox(height: 3),
-                                Text(trip.location, style: TextStyle(fontSize: 15, color: textSecondary)),
+                                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 17, height: 1.18, letterSpacing: -0.2, color: textPrimary,),
+                                ),
                                 const SizedBox(height: 8),
-                                _MiniTag(icon: Icons.calendar_today_rounded, label: '${trip.duration} Days / $nights Nights'),
-                                const SizedBox(height: 8),
-                                _MiniTag(icon: Icons.groups_rounded, label: trip.tourMode == 'private' ? 'Private Tour' : 'Group Tour'),
-                                // if (trip.rating > 0) ...[
-                                  const SizedBox(height: 8),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.star_rounded, size: 19, color: Colors.amber),
-                                      const SizedBox(width: 3),
-                                      Text('${trip.rating.toStringAsFixed(1)} (${trip.reviewCount} Reviews)',
-                                          style: TextStyle(fontSize: 14.5, color: textSecondary, fontWeight: FontWeight.w600)),
-                                    ],
-                                  ),
-                                // ],
+                                // LOCATION
+                                Row(
+                                  children: [
+                                    const Icon(Icons.place_outlined, size: 16, color: AppColors.primary,),
+                                    const SizedBox(width: 6),
+                                    Expanded(
+                                      child: Text(trip.location, maxLines: 1, overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(fontSize: 13.5, color: textSecondary, fontWeight: FontWeight.w600,),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 9),
+                                // DURATION
+                                _MiniTag(icon: Iconsax.calendar_1_copy, label: '${trip.duration} Days / $nights Nights',),
+                                const SizedBox(height: 7),
+                                // TOUR TYPE
+                                _MiniTag(icon: Icons.groups_3_outlined, label: trip.tourMode == 'private' ? 'Private Tour' : 'Group Tour',),
+                                const Spacer(),
+
+                                // RATING
+                                Obx(() {
+                                  if (controller.liveReviewCount.value == 0) {
+                                    return const SizedBox.shrink();
+                                  }
+
+                                  return Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 4,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.amber.withValues(alpha: 0.10),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(Icons.star_rounded, size: 16, color: Colors.amber,),
+                                        const SizedBox(width: 3),
+                                        Text(controller.liveRating.value.toStringAsFixed(1),
+                                          style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, color: textPrimary,),
+                                        ),
+                                        const SizedBox(width: 3),
+                                        Text('(${controller.liveReviewCount.value} Reviews)',
+                                          style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: textSecondary,),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }),
                               ],
                             ),
                           ),
@@ -103,13 +179,12 @@ class BookingScreen extends StatelessWidget {
                 ),
               ),
             ),
-
             // ===== Pickup / Best Time / Tour Type Band =====
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSizes.md),
+              padding: const EdgeInsets.symmetric(horizontal: AppSizes.sm),
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: AppSizes.md, horizontal: AppSizes.md),
+                padding: const EdgeInsets.symmetric(vertical: AppSizes.sm, horizontal: AppSizes.sm),
                 decoration: BoxDecoration(color: badgeBg, borderRadius: BorderRadius.circular(AppSizes.radiusLg)),
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
@@ -130,16 +205,23 @@ class BookingScreen extends StatelessWidget {
 
             // ===== Select Date + Select Travelers (side by side, equal height) =====
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSizes.md),
+              padding: const EdgeInsets.symmetric(horizontal: AppSizes.sm),
               child: IntrinsicHeight(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Expanded(
-                      flex: 11,
+                      flex: 12,
                       child: Container(
-                        padding: const EdgeInsets.all(AppSizes.sm + 2),
-                        decoration: BoxDecoration(color: surface, borderRadius: BorderRadius.circular(AppSizes.radiusLg)),
+                        padding: const EdgeInsets.all(AppSizes.sm ),
+                        decoration: BoxDecoration(
+                            color: surface,
+                            borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+                          border: Border.all(
+                            color: AppColors.primary.withValues(alpha: 0.10),
+                            width: 1,
+                          ),
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -162,8 +244,13 @@ class BookingScreen extends StatelessWidget {
                     Expanded(
                       flex: 11,
                       child: Container(
-                        padding: const EdgeInsets.all(AppSizes.sm + 2),
-                        decoration: BoxDecoration(color: surface, borderRadius: BorderRadius.circular(AppSizes.radiusLg)),
+                        padding: const EdgeInsets.all(AppSizes.sm),
+                        decoration: BoxDecoration(color: surface,
+                            borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+                            border: Border.all(
+                            color: AppColors.primary.withValues(alpha: 0.10), width: 1,
+                      ),
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -202,10 +289,17 @@ class BookingScreen extends StatelessWidget {
 
             // ===== Price Summary =====
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSizes.md),
+              padding: const EdgeInsets.symmetric(horizontal: AppSizes.sm),
               child: Container(
                 padding: const EdgeInsets.all(AppSizes.md),
-                decoration: BoxDecoration(color: surface, borderRadius: BorderRadius.circular(AppSizes.radiusLg)),
+                decoration: BoxDecoration(
+                    color: surface,
+                    borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+                  border: Border.all(
+                    color: AppColors.primary.withValues(alpha: 0.10),
+                    width: 1,
+                  ),
+                ),
                 child: Obx(() {
                   final d = controller.draft.value;
                   return Column(
@@ -221,7 +315,6 @@ class BookingScreen extends StatelessWidget {
                           textSecondary: textSecondary,
                           textPrimary: textPrimary,
                         ),
-                      _PriceRow(label: 'Taxes & Fees', value: 'PKR ${controller.taxesAndFees.toStringAsFixed(0)}', textSecondary: textSecondary, textPrimary: textPrimary),
                       const Divider(height: AppSizes.lg),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -309,9 +402,9 @@ class _MiniTag extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 20, color: AppColors.primary),
+        Icon(icon, size: 18, color: AppColors.primary),
         const SizedBox(width: 5),
-        Text(label, style: TextStyle(fontSize: 14, color: textSecondary, fontWeight: FontWeight.w600)),
+        Text(label, style: TextStyle(fontSize: 13, color: textSecondary, fontWeight: FontWeight.w600)),
       ],
     );
   }
@@ -322,24 +415,46 @@ class _InfoChip extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
-  const _InfoChip({required this.icon, required this.label, required this.value});
+
+  const _InfoChip({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final textPrimary = Theme.of(context).brightness == Brightness.dark ? Colors.white : AppColors.textPrimaryLight;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textPrimary = isDark ? Colors.white : AppColors.textPrimaryLight;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Icon(icon, size: 24, color: AppColors.primary),
-        const SizedBox(width: 8),
+        // Icon container
+        Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: AppColors.primary.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(11),
+          ),
+          child: Icon(icon, size: 18, color: AppColors.primary,),
+        ),
+        const SizedBox(width: 9),
+        // Text
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(label, style: const TextStyle(fontSize: 13, color: AppColors.primary, fontWeight: FontWeight.w700)),
-            Text(value, maxLines: 1, overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: textPrimary)),
+            Text(label, style: const TextStyle(fontSize: 11.5, color: AppColors.primary, fontWeight: FontWeight.w800, height: 1.1,),),
+            const SizedBox(height: 3),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 105,),
+              child: Text(value, maxLines: 1, overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: textPrimary, height: 1.1,),
+              ),
+            ),
           ],
         ),
       ],
@@ -353,10 +468,10 @@ class _InfoDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 34,
+      height: 38,
       width: 1,
-      margin: const EdgeInsets.symmetric(horizontal: 22),
-      color: AppColors.primary.withValues(alpha: 0.2),
+      margin: const EdgeInsets.symmetric(horizontal: 18),
+      color: AppColors.primary.withValues(alpha: 0.14),
     );
   }
 }
@@ -387,18 +502,36 @@ class _TrustBadge extends StatelessWidget {
   final IconData icon;
   final String label;
   final String sub;
-  const _TrustBadge({required this.icon, required this.label, required this.sub});
+
+  const _TrustBadge({
+    required this.icon,
+    required this.label,
+    required this.sub,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final textSecondary = Theme.of(context).brightness == Brightness.dark ? Colors.white70 : AppColors.textSecondaryLight;
-    return Column(
-      children: [
-        Icon(icon, size: 28, color: AppColors.primary),
-        const SizedBox(height: 2),
-        Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.primary)),
-        Text(sub, style: TextStyle(fontSize: 12, color: textSecondary)),
-      ],
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textSecondary = isDark ? Colors.white70 : AppColors.textSecondaryLight;
+
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 21, color: AppColors.primary,),
+            const SizedBox(height: 6),
+            Text(label, textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w800, color: AppColors.primary, height: 1.15,),
+            ),
+            const SizedBox(height: 2),
+            Text(sub, textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w500, color: textSecondary, height: 1.15,),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:goventure/modules/explore/screens/explore_screen.dart';
 import '../home/screens/home_screen.dart';
 import '../auth/controllers/auth_controller.dart';
 import '../../core/constants/app_icons.dart';
+import '../mybookings/screens/my_trips_screen.dart';
 
 class RootScreen extends StatefulWidget {
   const RootScreen({super.key});
@@ -21,7 +22,7 @@ class _RootScreenState extends State<RootScreen> {
     final screens = [
       const HomeScreen(),
       const ExploreScreen(),
-      const Center(child: Text('Bookings')),
+      const MyTripsScreen(),
       const Center(child: Text('Saved')),
       // Obx(() => authController.isLoggedIn ? const ProfileScreen() : LoginScreen()),
     ];

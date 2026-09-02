@@ -135,9 +135,12 @@ class _BookNowBar extends StatelessWidget {
               padding: EdgeInsets.zero,
               minimumSize: const Size(double.infinity, 44),
             ),
-            onPressed: isFullyBooked
-                ? null
-                : () => Get.to(() => BookingScreen(trip: trip)),
+              onPressed: isFullyBooked
+                  ? null
+                  : () => Get.to(() => BookingScreen(
+                trip: trip,
+                initialDate: trip.availableDates.isNotEmpty ? trip.availableDates.first.date : null,
+              )),
             child: Text(
               isFullyBooked ? 'Fully Booked' : 'Book Now',
               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
@@ -328,8 +331,6 @@ class _TripDetailBody extends StatelessWidget {
                 const SizedBox(height: AppSizes.md),
 
                 // ===== Reviews — only 3 shown here, "Show all" opens the
-                // full list on its own screen. Each user can edit/delete
-                // only their own review. =====
                 Obx(() {
                   final reviews = controller.reviews;
                   final liveRating = reviews.isEmpty

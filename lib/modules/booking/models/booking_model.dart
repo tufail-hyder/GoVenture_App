@@ -1,47 +1,32 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-/// Mirrors Section 11 of the spec.
-enum PaymentStatus { pending, processing, paid, failed, refunded, cancelled }
-
-PaymentStatus paymentStatusFromString(String value) {
-  return PaymentStatus.values.firstWhere(
-        (s) => s.name == value,
-    orElse: () => PaymentStatus.pending,
-  );
-}
+import '../controllers/booking_controller.dart';
 
 class BookingModel {
   final String id;
   final String tripId;
   final String tripTitle;
   final String tripCoverImage;
+  final String tripLocation;
+  final int tripDuration;
   final String userId;
-
-  // Customer info
   final String fullName;
   final String email;
   final String phone;
   final String specialRequests;
   final String emergencyContactName;
   final String emergencyContactPhone;
-
-  // Trip selection
   final DateTime selectedDate;
   final int adults;
   final int children;
   final int infants;
-
-  // Price
   final double adultTotal;
   final double childTotal;
-  final double taxesAndFees;
   final double grandTotal;
   final String currency;
-
-  // Payment / booking state
-  final String? paymentMethod; // 'jazzcash' | 'easypaisa' | 'card'
+  final String? paymentMethod;
   final PaymentStatus paymentStatus;
-  final String bookingStatus; // 'pending' | 'confirmed' | 'cancelled'
+  final String bookingStatus;
   final DateTime? createdAt;
 
   const BookingModel({
@@ -49,6 +34,8 @@ class BookingModel {
     required this.tripId,
     required this.tripTitle,
     required this.tripCoverImage,
+    required this.tripLocation,
+    required this.tripDuration,
     required this.userId,
     required this.fullName,
     required this.email,
@@ -62,7 +49,6 @@ class BookingModel {
     required this.infants,
     required this.adultTotal,
     required this.childTotal,
-    required this.taxesAndFees,
     required this.grandTotal,
     required this.currency,
     required this.paymentMethod,
@@ -78,6 +64,8 @@ class BookingModel {
       'tripId': tripId,
       'tripTitle': tripTitle,
       'tripCoverImage': tripCoverImage,
+      'tripLocation': tripLocation,
+      'tripDuration': tripDuration,
       'userId': userId,
       'fullName': fullName,
       'email': email,
@@ -91,12 +79,13 @@ class BookingModel {
       'infants': infants,
       'adultTotal': adultTotal,
       'childTotal': childTotal,
-      'taxesAndFees': taxesAndFees,
       'grandTotal': grandTotal,
       'currency': currency,
       'paymentMethod': paymentMethod,
       'paymentStatus': paymentStatus.name,
       'bookingStatus': bookingStatus,
+      'status': bookingStatus,   // Home screen ke query ke sath match (AppTexts.bookingUpcoming)
+      'travelDate': Timestamp.fromDate(selectedDate),   // Upcoming Bookings widget isi field ko dhoondhta hai
       'createdAt': FieldValue.serverTimestamp(),
     };
   }
@@ -108,6 +97,8 @@ class BookingModel {
       tripId: data['tripId'] ?? '',
       tripTitle: data['tripTitle'] ?? '',
       tripCoverImage: data['tripCoverImage'] ?? '',
+      tripLocation: data['tripLocation'] ?? '',
+      tripDuration: (data['tripDuration'] as num?)?.toInt() ?? 0,
       userId: data['userId'] ?? '',
       fullName: data['fullName'] ?? '',
       email: data['email'] ?? '',
@@ -121,7 +112,6 @@ class BookingModel {
       infants: (data['infants'] as num?)?.toInt() ?? 0,
       adultTotal: (data['adultTotal'] as num?)?.toDouble() ?? 0,
       childTotal: (data['childTotal'] as num?)?.toDouble() ?? 0,
-      taxesAndFees: (data['taxesAndFees'] as num?)?.toDouble() ?? 0,
       grandTotal: (data['grandTotal'] as num?)?.toDouble() ?? 0,
       currency: data['currency'] ?? 'PKR',
       paymentMethod: data['paymentMethod'],

@@ -29,7 +29,7 @@ class TripAvailableDatesSection extends StatelessWidget {
         const TripSectionTitle('Available Dates'),
         const SizedBox(height: AppSizes.sm + 2),
         SizedBox(
-          height: 96,
+          height: 80,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: availableDates.length,
@@ -50,7 +50,7 @@ class TripAvailableDatesSection extends StatelessWidget {
                 child: Opacity(
                   opacity: isFull ? 0.45 : 1,
                   child: Container(
-                    width: 118,
+                    width: 100,
                     padding: const EdgeInsets.symmetric(vertical: AppSizes.sm, horizontal: 8),
                     decoration: BoxDecoration(
                       color: isSelected ? AppColors.primary : AppColors.surfaceLight,
@@ -66,11 +66,11 @@ class TripAvailableDatesSection extends StatelessWidget {
                           style: TextStyle(
                             color: isSelected ? Colors.white : AppColors.textPrimaryLight,
                             fontWeight: FontWeight.w700,
-                            fontSize: 12,
+                            fontSize: 13,
                           ),
                         ),
                         Text(DateFormat('yyyy').format(slot.date),
-                            style: TextStyle(color: isSelected ? Colors.white70 : AppColors.textSecondaryLight, fontSize: 10)),
+                            style: TextStyle(color: isSelected ? Colors.white70 : AppColors.textSecondaryLight, fontSize: 13,fontWeight: FontWeight.w600)),
                         const SizedBox(height: 4),
                         if (remaining != null)
                           Container(
@@ -82,9 +82,9 @@ class TripAvailableDatesSection extends StatelessWidget {
                               borderRadius: BorderRadius.circular(AppSizes.radiusFull),
                             ),
                             child: Text(
-                              isFull ? 'Fully Booked' : '$remaining seats left',   // <-- 'Open' hata diya, ab exact count
+                              isFull ? 'Fully Booked' : '$remaining seats left',
                               style: TextStyle(
-                                fontSize: 8.5,
+                                fontSize: 12,
                                 fontWeight: FontWeight.w700,
                                 color: isSelected ? Colors.white : (isFull || isLow ? AppColors.error : AppColors.primary),
                               ),
