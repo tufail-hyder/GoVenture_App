@@ -51,6 +51,6 @@ class MyTripsController extends GetxController {
     if (days <= 3) return 'Next Trip';
     if (days <= 45) return 'In $days Days';
     final months = (days / 30).round();
-    return 'In $months Month${months > 1 ? 's' : ''}';
+    return 'In $months Month${months > 1 ? 's' : ''}';//
   }
 }
