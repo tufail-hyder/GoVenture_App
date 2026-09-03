@@ -185,22 +185,22 @@ class ForgotPasswordScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: AppSizes.lg),
 
-                        SizedBox(
-                          width: double.infinity,
-                          height: 48,
-                          child: AuthField(
-                            controller: emailController,
-                            hint: AppTexts.emailHint,
-                            icon: Icons.mail_outline,
-                            textColor: textPrimary,
-                            hintColor: textSecondary,
-                            borderColor: divider,
-                            focusColor: primary,
-                          ),
-                        ),
+                        Obx(() => AuthField(
+                          controller: emailController,
+                          hint: AppTexts.emailHint,
+                          icon: Icons.mail_outline,
+                          textColor: textPrimary,
+                          hintColor: textSecondary,
+                          borderColor: divider,
+                          focusColor: primary,
+                          keyboardType: TextInputType.emailAddress,
+                          errorText: controller.emailError.value,
+                          onChanged: (_) => controller.clearEmailError(),
+                        )),
                         const SizedBox(height: AppSizes.md),
 
-                        // Send reset link — styling comes from AppTheme.elevatedButtonTheme
+                        // Send reset link — actually calls Firebase now,
+                        // and only navigates when the email truly sends.
                         Obx(() => SizedBox(
                           width: double.infinity,
                           height: AppSizes.buttonHeight - 4,
@@ -212,11 +212,15 @@ class ForgotPasswordScreen extends StatelessWidget {
                             ),
                             onPressed: controller.isLoading.value
                                 ? null
-                                : () {
-                              Get.to(() => CheckEmailScreen(
-                                email: emailController.text
-                                    .trim(),
-                              ));
+                                : () async {
+                              final success = await controller.sendPasswordResetEmail(
+                                emailController.text,
+                              );
+                              if (success) {
+                                Get.to(() => CheckEmailScreen(
+                                  email: emailController.text.trim(),
+                                ));
+                              }
                             },
                             child: controller.isLoading.value
                                 ? const SizedBox(
@@ -252,7 +256,9 @@ class ForgotPasswordScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: AppSizes.md),
 
-                        // Reset with Google
+                        // Reset with Google — sign in flow via Google,
+                        // then go straight to Login rather than the email
+                        // reset step since there's no password to reset.
                         Obx(() => SizedBox(
                           width: double.infinity,
                           height: AppSizes.buttonHeight - 4,
@@ -264,7 +270,12 @@ class ForgotPasswordScreen extends StatelessWidget {
                             ),
                             onPressed: controller.isLoading.value
                                 ? null
-                                : () => controller.signInWithGoogle(),
+                                : () async {
+                              await controller.signInWithGoogle();
+                              if (controller.errorText.value.isEmpty) {
+                                Get.offAll(() => LoginScreen());
+                              }
+                            },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [

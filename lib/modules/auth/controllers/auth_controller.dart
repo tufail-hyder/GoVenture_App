@@ -10,24 +10,94 @@ class AuthController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   final RxBool isLoading = false.obs;
-  final RxString errorText = ''.obs;
+  final RxString errorText = ''.obs; // generic, non-field-specific errors
+
+  // ---- Field-level errors — each field reads only its own, so the
+  // message shows directly underneath it instead of one blob at the end. ----
+  final RxnString emailError = RxnString();
+  final RxnString passwordError = RxnString();
+  final RxnString confirmPasswordError = RxnString();
+  final RxnString firstNameError = RxnString();
+  final RxnString lastNameError = RxnString();
+
+  static final RegExp _emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
   User? get currentUser => _firebaseAuth.currentUser;
 
+  void _clearFieldErrors() {
+    emailError.value = null;
+    passwordError.value = null;
+    confirmPasswordError.value = null;
+    firstNameError.value = null;
+    lastNameError.value = null;
+    errorText.value = '';
+  }
+
+  // Call these from a field's onChanged so the red state clears the moment
+  // the person starts fixing it, rather than waiting for another submit tap.
+  void clearEmailError() => emailError.value = null;
+  void clearPasswordError() => passwordError.value = null;
+  void clearConfirmPasswordError() => confirmPasswordError.value = null;
+  void clearFirstNameError() => firstNameError.value = null;
+  void clearLastNameError() => lastNameError.value = null;
+
   Future<bool> signInWithEmail(String email, String password) async {
     final trimmedEmail = email.trim();
+    _clearFieldErrors();
 
-    if (trimmedEmail.isEmpty || password.isEmpty) {
-      errorText.value = 'Please enter your email and password.';
-      return false;
+    bool valid = true;
+    if (trimmedEmail.isEmpty) {
+      emailError.value = 'Please enter your email';
+      valid = false;
+    } else if (!_emailPattern.hasMatch(trimmedEmail)) {
+      emailError.value = 'Enter a valid email address';
+      valid = false;
     }
+    if (password.isEmpty) {
+      passwordError.value = 'Please enter your password';
+      valid = false;
+    }
+    if (!valid) return false;
 
-    return _guard(() async {
-      await _firebaseAuth.signInWithEmailAndPassword(
-        email: trimmedEmail,
-        password: password,
-      );
-    });
+    isLoading.value = true;
+    try {
+      await _firebaseAuth.signInWithEmailAndPassword(email: trimmedEmail, password: password);
+      return true;
+    } on FirebaseAuthException catch (e) {
+      _mapSignInError(e);
+      return false;
+    } catch (_) {
+      errorText.value = 'Something went wrong. Please try again.';
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  void _mapSignInError(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'invalid-email':
+        emailError.value = 'That email address looks invalid.';
+        break;
+      case 'user-not-found':
+        emailError.value = 'No account found with that email.';
+        break;
+      case 'user-disabled':
+        emailError.value = 'This account has been disabled.';
+        break;
+      case 'wrong-password':
+      case 'invalid-credential':
+        passwordError.value = 'Incorrect email or password.';
+        break;
+      case 'too-many-requests':
+        errorText.value = 'Too many attempts. Please try again later.';
+        break;
+      case 'network-request-failed':
+        errorText.value = 'Network error — please check your connection.';
+        break;
+      default:
+        errorText.value = e.message ?? 'Something went wrong. Please try again.';
+    }
   }
 
   Future<bool> signUpWithEmail({
@@ -40,63 +110,124 @@ class AuthController extends GetxController {
     final trimmedFirst = firstName.trim();
     final trimmedLast = lastName.trim();
     final trimmedEmail = email.trim();
+    _clearFieldErrors();
 
-    if (trimmedFirst.isEmpty || trimmedLast.isEmpty) {
-      errorText.value = 'Please enter your first and last name.';
-      return false;
+    bool valid = true;
+    if (trimmedFirst.isEmpty) {
+      firstNameError.value = 'Required';
+      valid = false;
     }
-    if (trimmedEmail.isEmpty || password.isEmpty) {
-      errorText.value = 'Please enter your email and password.';
-      return false;
+    if (trimmedLast.isEmpty) {
+      lastNameError.value = 'Required';
+      valid = false;
     }
-    if (password.length < 6) {
-      errorText.value = 'Password must be at least 6 characters.';
-      return false;
+    if (trimmedEmail.isEmpty) {
+      emailError.value = 'Please enter your email';
+      valid = false;
+    } else if (!_emailPattern.hasMatch(trimmedEmail)) {
+      emailError.value = 'Enter a valid email address';
+      valid = false;
     }
-    if (password != confirmPassword) {
-      errorText.value = 'Passwords do not match.';
-      return false;
+    if (password.isEmpty) {
+      passwordError.value = 'Please enter a password';
+      valid = false;
+    } else if (password.length < 6) {
+      passwordError.value = 'Must be at least 6 characters';
+      valid = false;
     }
+    if (confirmPassword.isEmpty) {
+      confirmPasswordError.value = 'Please confirm your password';
+      valid = false;
+    } else if (password.isNotEmpty && password != confirmPassword) {
+      confirmPasswordError.value = 'Passwords do not match';
+      valid = false;
+    }
+    if (!valid) return false;
 
-    return _guard(() async {
+    isLoading.value = true;
+    try {
       final credential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: trimmedEmail,
         password: password,
       );
-
       await credential.user?.updateDisplayName('$trimmedFirst $trimmedLast');
-
-      await _firestore
-          .collection(AppTexts.colUsers)
-          .doc(credential.user?.uid)
-          .set({
+      await _firestore.collection(AppTexts.colUsers).doc(credential.user?.uid).set({
         'firstName': trimmedFirst,
         'lastName': trimmedLast,
         'email': trimmedEmail,
         'createdAt': FieldValue.serverTimestamp(),
       });
-    });
+      return true;
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'email-already-in-use':
+          emailError.value = 'An account already exists with that email.';
+          break;
+        case 'invalid-email':
+          emailError.value = 'That email address looks invalid.';
+          break;
+        case 'weak-password':
+          passwordError.value = 'Please choose a stronger password.';
+          break;
+        case 'network-request-failed':
+          errorText.value = 'Network error — please check your connection.';
+          break;
+        default:
+          errorText.value = e.message ?? 'Something went wrong. Please try again.';
+      }
+      return false;
+    } catch (_) {
+      errorText.value = 'Something went wrong. Please try again.';
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   Future<bool> sendPasswordResetEmail(String email) async {
     final trimmedEmail = email.trim();
+    _clearFieldErrors();
 
     if (trimmedEmail.isEmpty) {
-      errorText.value = 'Please enter your email address.';
+      emailError.value = 'Please enter your email address';
+      return false;
+    }
+    if (!_emailPattern.hasMatch(trimmedEmail)) {
+      emailError.value = 'Enter a valid email address';
       return false;
     }
 
-    return _guard(() async {
+    isLoading.value = true;
+    try {
       await _firebaseAuth.sendPasswordResetEmail(email: trimmedEmail);
-    });
+      return true;
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'invalid-email':
+          emailError.value = 'That email address looks invalid.';
+          break;
+        case 'user-not-found':
+          emailError.value = 'No account found with that email.';
+          break;
+        default:
+          errorText.value = e.message ?? 'Something went wrong. Please try again.';
+      }
+      return false;
+    } catch (_) {
+      errorText.value = 'Something went wrong. Please try again.';
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
   }
-
 
   Future<void> signInWithGoogle() async {
     isLoading.value = true;
+    errorText.value = '';
     try {
       final result = await AuthService.signInWithGoogle();
       if (result != null) {
+        await _saveUserToFirestoreIfNew(result);
         if (Get.isRegistered<HomeController>()) {
           Get.find<HomeController>().fetchHomeData();
         }
@@ -109,51 +240,41 @@ class AuthController extends GetxController {
   }
 
   Future<void> signInWithApple() async {
-    await _guard(() => AuthService.signInWithApple());
-  }
-
-  Future<void> signOut() async {
-    await _firebaseAuth.signOut();
-  }
-
-  Future<bool> _guard(Future<void> Function() action) async {
     isLoading.value = true;
     errorText.value = '';
     try {
-      await action();
-      return true;
+      final result = await AuthService.signInWithApple();
+      await _saveUserToFirestoreIfNew(result);
     } catch (e) {
-      errorText.value = _mapError(e);
-      return false;
+      errorText.value = 'Sign-in failed. Please try again.';
     } finally {
       isLoading.value = false;
     }
   }
 
-  String _mapError(Object error) {
-    if (error is FirebaseAuthException) {
-      switch (error.code) {
-        case 'invalid-email':
-          return 'That email address looks invalid.';
-        case 'user-disabled':
-          return 'This account has been disabled.';
-        case 'user-not-found':
-          return 'No account found with that email.';
-        case 'wrong-password':
-        case 'invalid-credential':
-          return 'Incorrect email or password.';
-        case 'email-already-in-use':
-          return 'An account already exists with that email.';
-        case 'weak-password':
-          return 'Please choose a stronger password.';
-        case 'network-request-failed':
-          return 'Network error — please check your connection.';
-        case 'too-many-requests':
-          return 'Too many attempts. Please try again later.';
-        default:
-          return error.message ?? 'Something went wrong. Please try again.';
-      }
+  Future<void> _saveUserToFirestoreIfNew(UserCredential credential) async {
+    final user = credential.user;
+    if (user == null) return;
+
+    final docRef = _firestore.collection(AppTexts.colUsers).doc(user.uid);
+    final doc = await docRef.get();
+
+    if (!doc.exists) {
+      final nameParts = (user.displayName ?? '').trim().split(' ');
+      final firstName = nameParts.isNotEmpty ? nameParts.first : '';
+      final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
+
+      await docRef.set({
+        'firstName': firstName,
+        'lastName': lastName,
+        'email': user.email ?? '',
+        'photoUrl': user.photoURL ?? '',
+        'createdAt': FieldValue.serverTimestamp(),
+      });
     }
-    return 'Something went wrong. Please try again.';
+  }
+
+  Future<void> signOut() async {
+    await _firebaseAuth.signOut();
   }
 }

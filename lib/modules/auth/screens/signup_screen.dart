@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:goventure/modules/auth/screens/login_screen.dart';
+import 'package:goventure/modules/root/root_screen.dart';
 import '../../../core/constants/app_text.dart';
 import '../../home/screens/home_screen.dart';
 import '../controllers/auth_controller.dart';
@@ -153,110 +154,93 @@ class SignupScreen extends StatelessWidget {
                         Row(
                           children: [
                             Expanded(
-                              child: SizedBox(
-                                height: 48,
-                                child: AuthField(
-                                  controller: firstNameController,
-                                  hint: AppTexts.firstNameHint,
-                                  icon: Icons.person_outline,
-                                  textColor: textPrimary,
-                                  hintColor: textSecondary,
-                                  borderColor: divider,
-                                  focusColor: primary,
-                                ),
-                              ),
+                              child: Obx(() => AuthField(
+                                controller: firstNameController,
+                                hint: AppTexts.firstNameHint,
+                                icon: Icons.person_outline,
+                                textColor: textPrimary,
+                                hintColor: textSecondary,
+                                borderColor: divider,
+                                focusColor: primary,
+                                errorText: controller.firstNameError.value,
+                                onChanged: (_) => controller.clearFirstNameError(),
+                              )),
                             ),
                             const SizedBox(width: AppSizes.sm),
                             Expanded(
-                              child: SizedBox(
-                                height: 48,
-                                child: AuthField(
-                                  controller: lastNameController,
-                                  hint: AppTexts.lastNameHint,
-                                  icon: Icons.person_outline,
-                                  textColor: textPrimary,
-                                  hintColor: textSecondary,
-                                  borderColor: divider,
-                                  focusColor: primary,
-                                ),
-                              ),
+                              child: Obx(() => AuthField(
+                                controller: lastNameController,
+                                hint: AppTexts.lastNameHint,
+                                icon: Icons.person_outline,
+                                textColor: textPrimary,
+                                hintColor: textSecondary,
+                                borderColor: divider,
+                                focusColor: primary,
+                                errorText: controller.lastNameError.value,
+                                onChanged: (_) => controller.clearLastNameError(),
+                              )),
                             ),
                           ],
                         ),
                         const SizedBox(height: AppSizes.sm + 8),
 
-                        SizedBox(
-                          width: double.infinity,
-                          height: 48,
-                          child: AuthField(
-                            controller: emailController,
-                            hint: AppTexts.emailHint,
-                            icon: Icons.mail_outline,
+                        Obx(() => AuthField(
+                          controller: emailController,
+                          hint: AppTexts.emailHint,
+                          icon: Icons.mail_outline,
+                          textColor: textPrimary,
+                          hintColor: textSecondary,
+                          borderColor: divider,
+                          focusColor: primary,
+                          keyboardType: TextInputType.emailAddress,
+                          errorText: controller.emailError.value,
+                          onChanged: (_) => controller.clearEmailError(),
+                        )),
+                        const SizedBox(height: AppSizes.sm + 8),
+
+                        Obx(
+                              () => AuthField(
+                            controller: passwordController,
+                            hint: AppTexts.passwordHint,
+                            icon: Icons.lock_outline,
+                            obscure: _obscurePassword.value,
                             textColor: textPrimary,
                             hintColor: textSecondary,
                             borderColor: divider,
                             focusColor: primary,
-                          ),
-                        ),
-                        const SizedBox(height: AppSizes.sm + 8),
-
-                        SizedBox(
-                          width: double.infinity,
-                          height: 48,
-                          child: Obx(
-                                () => AuthField(
-                              controller: passwordController,
-                              hint: AppTexts.passwordHint,
-                              icon: Icons.lock_outline,
-                              obscure: _obscurePassword.value,
-                              textColor: textPrimary,
-                              hintColor: textSecondary,
-                              borderColor: divider,
-                              focusColor: primary,
-                              suffix: IconButton(
-                                icon: Icon(
-                                  _obscurePassword.value
-                                      ? Icons.visibility_off_outlined
-                                      : Icons.visibility_outlined,
-                                  color: textSecondary,
-                                  size: AppSizes.iconSm + 4,
-                                ),
-                                onPressed: () {
-                                  _obscurePassword.value =
-                                  !_obscurePassword.value;
-                                },
+                            errorText: controller.passwordError.value,
+                            onChanged: (_) => controller.clearPasswordError(),
+                            suffix: IconButton(
+                              icon: Icon(
+                                _obscurePassword.value ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                                color: textSecondary,
+                                size: AppSizes.iconSm + 4,
                               ),
+                              onPressed: () => _obscurePassword.value = !_obscurePassword.value,
                             ),
                           ),
                         ),
                         const SizedBox(height: AppSizes.sm + 8),
 
-                        SizedBox(
-                          width: double.infinity,
-                          height: 48,
-                          child: Obx(
-                                () => AuthField(
-                              controller: confirmPasswordController,
-                              hint: AppTexts.confirmPasswordHint,
-                              icon: Icons.lock_outline,
-                              obscure: _obscureConfirmPassword.value,
-                              textColor: textPrimary,
-                              hintColor: textSecondary,
-                              borderColor: divider,
-                              focusColor: primary,
-                              suffix: IconButton(
-                                icon: Icon(
-                                  _obscureConfirmPassword.value
-                                      ? Icons.visibility_off_outlined
-                                      : Icons.visibility_outlined,
-                                  color: textSecondary,
-                                  size: AppSizes.iconSm + 4,
-                                ),
-                                onPressed: () {
-                                  _obscureConfirmPassword.value =
-                                  !_obscureConfirmPassword.value;
-                                },
+                        Obx(
+                              () => AuthField(
+                            controller: confirmPasswordController,
+                            hint: AppTexts.confirmPasswordHint,
+                            icon: Icons.lock_outline,
+                            obscure: _obscureConfirmPassword.value,
+                            textColor: textPrimary,
+                            hintColor: textSecondary,
+                            borderColor: divider,
+                            focusColor: primary,
+                            errorText: controller.confirmPasswordError.value,
+                            onChanged: (_) => controller.clearConfirmPasswordError(),
+                            suffix: IconButton(
+                              icon: Icon(
+                                _obscureConfirmPassword.value ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                                color: textSecondary,
+                                size: AppSizes.iconSm + 4,
                               ),
+                              onPressed: () => _obscureConfirmPassword.value = !_obscureConfirmPassword.value,
                             ),
                           ),
                         ),
@@ -295,7 +279,8 @@ class SignupScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: AppSizes.md),
 
-                        // Sign up button — styling comes from AppTheme.elevatedButtonTheme
+                        // Sign up button — actually calls Firebase now,
+                        // and only navigates when it truly succeeds.
                         Obx(() => SizedBox(
                           width: double.infinity,
                           height: AppSizes.buttonHeight - 4,
@@ -307,8 +292,17 @@ class SignupScreen extends StatelessWidget {
                             ),
                             onPressed: controller.isLoading.value
                                 ? null
-                                : () {
-                              Get.offAll(() => const HomeScreen());
+                                : () async {
+                              final success = await controller.signUpWithEmail(
+                                firstName: firstNameController.text,
+                                lastName: lastNameController.text,
+                                email: emailController.text,
+                                password: passwordController.text,
+                                confirmPassword: confirmPasswordController.text,
+                              );
+                              if (success) {
+                                Get.offAll(() => const HomeScreen());
+                              }
                             },
                             child: controller.isLoading.value
                                 ? const SizedBox(
@@ -343,7 +337,12 @@ class SignupScreen extends StatelessWidget {
                               ),
                               onPressed: controller.isLoading.value
                                   ? null
-                                  : () => controller.signInWithApple(),
+                                  : () async {
+                                await controller.signInWithApple();
+                                if (controller.errorText.value.isEmpty) {
+                                  Get.offAll(() => const RootScreen());
+                                }
+                              },
                             ),
                           )),
                         ],

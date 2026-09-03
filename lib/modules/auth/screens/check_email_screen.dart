@@ -218,6 +218,8 @@ class CheckEmailScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: AppSizes.md),
 
+                        // Resend — now actually re-sends the reset email
+                        // instead of doing nothing.
                         Obx(() => RichText(
                           text: TextSpan(
                             style: theme.textTheme.bodyMedium?.copyWith(
@@ -235,13 +237,35 @@ class CheckEmailScreen extends StatelessWidget {
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = controller.isLoading.value
                                       ? null
-                                      : () {
-                                    // TODO: hook up to controller.sendResetLink(email)
+                                      : () async {
+                                    final success = await controller
+                                        .sendPasswordResetEmail(email);
+                                    if (success) {
+                                      Get.snackbar(
+                                        'Email sent',
+                                        'Check your inbox for the reset link.',
+                                        snackPosition: SnackPosition.TOP,
+                                      );
+                                    }
                                   },
                               ),
                             ],
                           ),
                         )),
+
+                        Obx(() {
+                          if (controller.errorText.value.isNotEmpty) {
+                            return Padding(
+                              padding: const EdgeInsets.only(top: AppSizes.md),
+                              child: Text(
+                                controller.errorText.value,
+                                style: TextStyle(color: AppColors.error),
+                                textAlign: TextAlign.center,
+                              ),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        }),
                       ],
                     ),
                   ),

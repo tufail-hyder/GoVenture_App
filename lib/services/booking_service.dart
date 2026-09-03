@@ -51,4 +51,13 @@ class BookingService {
   }) async {
     await _bookingsRef.doc(bookingId).update({'paymentMethod': method});
   }
+
+  static Future<void> cancelBooking(String bookingId) async {
+    await _bookingsRef.doc(bookingId).update({
+      'bookingStatus': 'cancelled',
+      'status': 'cancelled',
+    });
+  }
+
+  static Future<List<BookingModel>> streamUserBookingsOnce(String uid) => getUserBookings(uid);
 }

@@ -146,25 +146,21 @@ class LoginScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: AppSizes.md),
 
-                        SizedBox(
-                          width: double.infinity,
-                          height: 48,
-                          child: AuthField(
-                            controller: emailController,
-                            hint: AppTexts.emailHint,
-                            icon: Icons.mail_outline,
-                            textColor: textPrimary,
-                            hintColor: textSecondary,
-                            borderColor: divider,
-                            focusColor: primary,
-                          ),
-                        ),
-                        const SizedBox(height: AppSizes.sm+8),
+                            Obx(() => AuthField(
+                              controller: emailController,
+                              hint: AppTexts.emailHint,
+                              icon: Icons.mail_outline,
+                              textColor: textPrimary,
+                              hintColor: textSecondary,
+                              borderColor: divider,
+                              focusColor: primary,
+                              keyboardType: TextInputType.emailAddress,
+                              errorText: controller.emailError.value,
+                              onChanged: (_) => controller.clearEmailError(),
+                            )),
+                            const SizedBox(height: AppSizes.sm + 8),
 
-                        SizedBox(
-                          width: double.infinity,
-                          height: 48,
-                          child: Obx(
+                          Obx(
                                 () => AuthField(
                               controller: passwordController,
                               hint: AppTexts.passwordHint,
@@ -174,22 +170,20 @@ class LoginScreen extends StatelessWidget {
                               hintColor: textSecondary,
                               borderColor: divider,
                               focusColor: primary,
+                              errorText: controller.passwordError.value,
+                              onChanged: (_) => controller.clearPasswordError(),
                               suffix: IconButton(
                                 icon: Icon(
-                                  _obscurePassword.value
-                                      ? Icons.visibility_off_outlined
-                                      : Icons.visibility_outlined,
+                                  _obscurePassword.value ? Icons.visibility_off_outlined : Icons.visibility_outlined,
                                   color: textSecondary,
                                   size: AppSizes.iconSm + 4,
                                 ),
                                 onPressed: () {
-                                  _obscurePassword.value =
-                                  !_obscurePassword.value;
+                                  _obscurePassword.value = !_obscurePassword.value;
                                 },
                               ),
                             ),
                           ),
-                        ),
 
                         Align(
                           alignment: Alignment.centerRight,
@@ -213,7 +207,8 @@ class LoginScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: AppSizes.sm),
 
-                        // Sign in button — styling comes from AppTheme.elevatedButtonTheme
+                        // Sign in button — actually calls Firebase now,
+                        // and only navigates when it truly succeeds.
                         Obx(() => SizedBox(
                           width: double.infinity,
                           height: AppSizes.buttonHeight - 4,
@@ -225,8 +220,14 @@ class LoginScreen extends StatelessWidget {
                             ),
                             onPressed: controller.isLoading.value
                                 ? null
-                                : () {
-                              Get.offAll(() => const RootScreen());
+                                : () async {
+                              final success = await controller.signInWithEmail(
+                                emailController.text,
+                                passwordController.text,
+                              );
+                              if (success) {
+                                Get.offAll(() => const RootScreen());
+                              }
                             },
                             child: controller.isLoading.value
                                 ? const SizedBox(
@@ -270,7 +271,12 @@ class LoginScreen extends StatelessWidget {
                             ),
                             onPressed: controller.isLoading.value
                                 ? null
-                                : () => controller.signInWithGoogle(),
+                                : () async {
+                              await controller.signInWithGoogle();
+                              if (controller.errorText.value.isEmpty) {
+                                Get.offAll(() => const RootScreen());
+                              }
+                            },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -311,7 +317,12 @@ class LoginScreen extends StatelessWidget {
                               ),
                               onPressed: controller.isLoading.value
                                   ? null
-                                  : () => controller.signInWithApple(),
+                                  : () async {
+                                await controller.signInWithApple();
+                                if (controller.errorText.value.isEmpty) {
+                                  Get.offAll(() => const RootScreen());
+                                }
+                              },
                             ),
                           )),
                         ],
@@ -368,4 +379,3 @@ class LoginScreen extends StatelessWidget {
     );
   }
 }
-

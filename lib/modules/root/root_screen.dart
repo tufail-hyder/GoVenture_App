@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:goventure/modules/explore/screens/explore_screen.dart';
+import 'package:goventure/modules/root/root_nav_controller.dart';
 import '../home/screens/home_screen.dart';
 import '../auth/controllers/auth_controller.dart';
 import '../../core/constants/app_icons.dart';
-import '../mybookings/screens/my_trips_screen.dart';
+import '../mybookings/screens/my_bookings_screen.dart';
+import '../profile/screens/profile_screen.dart';
 
 class RootScreen extends StatefulWidget {
   const RootScreen({super.key});
@@ -14,24 +16,24 @@ class RootScreen extends StatefulWidget {
 }
 
 class _RootScreenState extends State<RootScreen> {
-  int _currentIndex = 0;
   final authController = Get.put(AuthController());
+  final navController = Get.put(RootNavController());
 
   @override
   Widget build(BuildContext context) {
     final screens = [
       const HomeScreen(),
       const ExploreScreen(),
-      const MyTripsScreen(),
+      const MyBookingsScreen(),
       const Center(child: Text('Saved')),
-      // Obx(() => authController.isLoggedIn ? const ProfileScreen() : LoginScreen()),
+      const ProfileScreen(),
     ];
 
-    return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: screens),
+    return Obx(() => Scaffold(
+      body: IndexedStack(index: navController.currentIndex.value, children: screens),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (i) => setState(() => _currentIndex = i),
+        currentIndex: navController.currentIndex.value,
+        onTap: navController.changeTab,
         items: const [
           BottomNavigationBarItem(icon: Icon(AppIcons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(AppIcons.explore), label: 'Explore'),
@@ -40,6 +42,6 @@ class _RootScreenState extends State<RootScreen> {
           BottomNavigationBarItem(icon: Icon(AppIcons.profile), label: 'Profile'),
         ],
       ),
-    );
+    ));
   }
 }
