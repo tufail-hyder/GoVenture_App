@@ -272,8 +272,8 @@ class LoginScreen extends StatelessWidget {
                             onPressed: controller.isLoading.value
                                 ? null
                                 : () async {
-                              await controller.signInWithGoogle();
-                              if (controller.errorText.value.isEmpty) {
+                              final success = await controller.signInWithGoogle();
+                              if (success) {
                                 Get.offAll(() => const RootScreen());
                               }
                             },

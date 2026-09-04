@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import '../../mybookings/screens/my_bookings_screen.dart';
 import '../../tripdetails/models/trip_model.dart';
 import '../controllers/booking_controller.dart';
 import '../../../core/constants/app_colors.dart';
@@ -84,7 +85,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                     height: 48,
                     child: ElevatedButton(
                       onPressed: () {
-                        // My Bookings screen — Step baad mein connect karenge
+                        Get.offAll(() => const MyBookingsScreen());
                       },
                       child: const Text('View Booking'),
                     ),

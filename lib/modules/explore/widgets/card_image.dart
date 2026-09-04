@@ -1,8 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import '../../../core/utils/cloudinary_utils.dart';
 
 class CardImage extends StatelessWidget {
-  const CardImage({required this.coverImage});
+  const CardImage({super.key, required this.coverImage});
 
   final String coverImage;
 
@@ -13,12 +14,12 @@ class CardImage extends StatelessWidget {
     if (coverImage.isEmpty) return _placeholder();
 
     if (_isNetwork) {
-      return Image.network(
-        coverImage,
+      return CachedNetworkImage(
+        imageUrl: optimizedCloudinaryUrl(coverImage, width: 300),
         fit: BoxFit.cover,
-        loadingBuilder: (context, child, progress) =>
-        progress == null ? child : _placeholder(loading: true),
-        errorBuilder: (context, error, stackTrace) => _placeholder(broken: true),
+        fadeInDuration: const Duration(milliseconds: 200),
+        placeholder: (context, url) => _placeholder(loading: true),
+        errorWidget: (context, url, error) => _placeholder(broken: true),
       );
     }
 

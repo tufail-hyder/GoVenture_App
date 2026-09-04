@@ -301,7 +301,7 @@ class SignupScreen extends StatelessWidget {
                                 confirmPassword: confirmPasswordController.text,
                               );
                               if (success) {
-                                Get.offAll(() => const HomeScreen());
+                                Get.offAll(() => const RootScreen());
                               }
                             },
                             child: controller.isLoading.value

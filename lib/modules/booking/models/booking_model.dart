@@ -9,6 +9,7 @@ class BookingModel {
   final String tripCoverImage;
   final String tripLocation;
   final int tripDuration;
+  final String itineraryPdfUrl;
   final String userId;
   final String fullName;
   final String email;
@@ -36,6 +37,7 @@ class BookingModel {
     required this.tripCoverImage,
     required this.tripLocation,
     required this.tripDuration,
+    this.itineraryPdfUrl = '',
     required this.userId,
     required this.fullName,
     required this.email,
@@ -58,6 +60,11 @@ class BookingModel {
   });
 
   int get totalTravelers => adults + children + infants;
+  DateTime get endDate => selectedDate.add(Duration(days: tripDuration > 0 ? tripDuration - 1 : 0));
+  bool get isCancelled => bookingStatus == 'cancelled';
+  bool get isCompleted => !isCancelled && endDate.isBefore(DateTime.now());
+  bool get isUpcoming => !isCancelled && !isCompleted;
+
 
   Map<String, dynamic> toFirestore() {
     return {
@@ -66,6 +73,7 @@ class BookingModel {
       'tripCoverImage': tripCoverImage,
       'tripLocation': tripLocation,
       'tripDuration': tripDuration,
+      'itineraryPdfUrl': itineraryPdfUrl,
       'userId': userId,
       'fullName': fullName,
       'email': email,
@@ -84,8 +92,8 @@ class BookingModel {
       'paymentMethod': paymentMethod,
       'paymentStatus': paymentStatus.name,
       'bookingStatus': bookingStatus,
-      'status': bookingStatus,   // Home screen ke query ke sath match (AppTexts.bookingUpcoming)
-      'travelDate': Timestamp.fromDate(selectedDate),   // Upcoming Bookings widget isi field ko dhoondhta hai
+      'status': bookingStatus,
+      'travelDate': Timestamp.fromDate(selectedDate),
       'createdAt': FieldValue.serverTimestamp(),
     };
   }
@@ -99,6 +107,7 @@ class BookingModel {
       tripCoverImage: data['tripCoverImage'] ?? '',
       tripLocation: data['tripLocation'] ?? '',
       tripDuration: (data['tripDuration'] as num?)?.toInt() ?? 0,
+      itineraryPdfUrl: data['itineraryPdfUrl'] ?? '',
       userId: data['userId'] ?? '',
       fullName: data['fullName'] ?? '',
       email: data['email'] ?? '',

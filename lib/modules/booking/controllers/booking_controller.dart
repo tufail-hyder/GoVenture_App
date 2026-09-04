@@ -169,6 +169,7 @@ class BookingController extends GetxController {
         tripCoverImage: trip.coverImage,
         tripLocation: trip.location,
         tripDuration: trip.duration,
+        itineraryPdfUrl: trip.itineraryPdfUrl,
         userId: uid,
         fullName: d.fullName,
         email: d.email,

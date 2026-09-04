@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:goventure/modules/auth/screens/login_screen.dart';
 
+import '../../root/root_screen.dart';
+
 class OnboardingController extends GetxController {
   final PageController pageController = PageController();
   final RxInt currentPageIndex = 0.obs;
@@ -23,7 +25,7 @@ class OnboardingController extends GetxController {
     if (currentPageIndex.value == 2) {
       final storage = GetStorage();
       storage.write("IsFirstTime", false);
-      Get.offAll(() =>  LoginScreen());
+      Get.offAll(() => const RootScreen());
     } else {
       pageController.nextPage(
         duration: const Duration(milliseconds: 300),

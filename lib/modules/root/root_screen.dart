@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:goventure/modules/explore/screens/explore_screen.dart';
 import 'package:goventure/modules/root/root_nav_controller.dart';
+import '../favourite/screens/saved_trips_screen.dart';
 import '../home/screens/home_screen.dart';
 import '../auth/controllers/auth_controller.dart';
 import '../../core/constants/app_icons.dart';
@@ -25,7 +26,7 @@ class _RootScreenState extends State<RootScreen> {
       const HomeScreen(),
       const ExploreScreen(),
       const MyBookingsScreen(),
-      const Center(child: Text('Saved')),
+      const SavedTripsScreen(),
       const ProfileScreen(),
     ];
 

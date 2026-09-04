@@ -24,7 +24,7 @@ dependencies:
   intl: ^0.20.3
   shimmer_animation: ^2.2.2+1
   cloudinary_public: ^0.23.1
-  cached_network_image: ^3.4.1
+  cached_network_image: ^4.0.0
   google_maps_flutter: ^2.18.0
   url_launcher: ^6.3.2
   share_plus: ^13.3.0
@@ -34,6 +34,8 @@ dependencies:
   permission_handler: ^13.0.1
   syncfusion_flutter_pdfviewer: ^34.2.5
   iconsax_flutter: ^1.0.1
+  flutter_native_splash: ^2.4.8
+
 
 dev_dependencies:
   flutter_test:
@@ -63,8 +65,15 @@ flutter:
         - asset: assets/fonts/times-i.ttf
           style: italic
 
-flutter_launcher_icons:
-  android: true
-  ios: true
-  image_path: "assets/logos/app_light_logo.png"
-  min_sdk_android: 21
+flutter_native_splash:
+  color: "#FFFFFF"
+  color_dark: "#121212"
+
+  image: assets/images/logos/app_light_logo.png
+
+  android_12:
+    color: "#FFFFFF"
+    color_dark: "#121212"
+    image: assets/images/logos/app_light_logo.png
+
+  fullscreen: true

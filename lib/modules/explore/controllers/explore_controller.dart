@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../../favourite/services/favourite_services.dart';
 import '../../tripdetails/models/trip_model.dart';
 import '../../../services/trip_service.dart';
 
@@ -32,6 +34,7 @@ class ExploreController extends GetxController {
   void onInit() {
     super.onInit();
     fetchTrips();
+    _loadFavorites();
   }
 
   Future<void> fetchTrips() async {
@@ -69,11 +72,56 @@ class ExploreController extends GetxController {
 
   Future<void> refresh() => fetchTrips();
 
-  void toggleFavorite(String tripId) {
-    if (favoriteTripIds.contains(tripId)) {
+  // ---------------- Favorites (persisted to Firestore) ----------------
+  Future<void> _loadFavorites() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+    try {
+      final ids = await FavoritesService.getFavoriteTripIds(uid);
+      favoriteTripIds.value = ids.toSet();
+    } catch (e) {
+      // ignore: avoid_print
+      print('ExploreController._loadFavorites ERROR: $e');
+    }
+  }
+
+  Future<String?> _ensureUid() async {
+    var user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      try {
+        final credential = await FirebaseAuth.instance.signInAnonymously();
+        user = credential.user;
+      } catch (_) {
+        return null;
+      }
+    }
+    return user?.uid;
+  }
+
+  Future<void> toggleFavorite(String tripId) async {
+    final wasFavorite = favoriteTripIds.contains(tripId);
+    if (wasFavorite) {
       favoriteTripIds.remove(tripId);
     } else {
       favoriteTripIds.add(tripId);
+    }
+
+    final uid = await _ensureUid();
+    if (uid == null) {
+      return;
+    }
+
+    try {
+      await FavoritesService.toggleFavorite(uid: uid, tripId: tripId);
+    } catch (e) {
+      // ignore: avoid_print
+      print('ExploreController.toggleFavorite ERROR: $e');
+      // Roll back the optimistic update.
+      if (wasFavorite) {
+        favoriteTripIds.add(tripId);
+      } else {
+        favoriteTripIds.remove(tripId);
+      }
     }
   }
 

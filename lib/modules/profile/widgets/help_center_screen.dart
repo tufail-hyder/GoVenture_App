@@ -7,9 +7,9 @@ class HelpCenterScreen extends StatelessWidget {
   const HelpCenterScreen({super.key});
 
   // ⚠️ Replace with your real support contact details.
-  static const String supportEmail = 'support@goventure.pk';
-  static const String supportPhone = '+923001234567';
-  static const String whatsappNumber = '923001234567';
+  static const String supportEmail = 'goventure001@gmail.com';
+  static const String supportPhone = '+923400189816';
+  static const String whatsappNumber = '+923400189816';
 
   Future<void> _launch(Uri uri) async {
     if (await canLaunchUrl(uri)) {

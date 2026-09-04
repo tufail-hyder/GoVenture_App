@@ -221,32 +221,35 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<void> signInWithGoogle() async {
+  Future<bool> signInWithGoogle() async {
     isLoading.value = true;
     errorText.value = '';
     try {
       final result = await AuthService.signInWithGoogle();
-      if (result != null) {
-        await _saveUserToFirestoreIfNew(result);
-        if (Get.isRegistered<HomeController>()) {
-          Get.find<HomeController>().fetchHomeData();
-        }
+      if (result == null) return false;   // user ne cancel kiya — error nahi, bas false
+      await _saveUserToFirestoreIfNew(result);
+      if (Get.isRegistered<HomeController>()) {
+        Get.find<HomeController>().fetchHomeData();
       }
+      return true;
     } catch (e) {
       errorText.value = 'Sign-in failed. Please try again.';
+      return false;
     } finally {
       isLoading.value = false;
     }
   }
 
-  Future<void> signInWithApple() async {
+  Future<bool> signInWithApple() async {
     isLoading.value = true;
     errorText.value = '';
     try {
       final result = await AuthService.signInWithApple();
       await _saveUserToFirestoreIfNew(result);
+      return true;
     } catch (e) {
       errorText.value = 'Sign-in failed. Please try again.';
+      return false;
     } finally {
       isLoading.value = false;
     }

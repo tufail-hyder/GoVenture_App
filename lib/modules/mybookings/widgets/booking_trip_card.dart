@@ -9,7 +9,6 @@ class BookingTripCard extends StatelessWidget {
   final String relativeLabel;
   final VoidCallback onTap;
   final VoidCallback onItinerary;
-  final VoidCallback onVoucher;
   final VoidCallback onManage;
   final VoidCallback onContactSupport;
 
@@ -19,7 +18,6 @@ class BookingTripCard extends StatelessWidget {
     required this.relativeLabel,
     required this.onTap,
     required this.onItinerary,
-    required this.onVoucher,
     required this.onManage,
     required this.onContactSupport,
   });
@@ -32,43 +30,77 @@ class BookingTripCard extends StatelessWidget {
     final textSecondary = isDark ? Colors.white70 : AppColors.textSecondaryLight;
     final divider = isDark ? AppColors.dividerDark : AppColors.dividerLight;
 
-    final endDate = booking.selectedDate.add(Duration(days: booking.tripDuration > 0 ? booking.tripDuration - 1 : 0));
+    final endDate = booking.endDate;
     final nights = booking.tripDuration > 0 ? booking.tripDuration - 1 : 0;
     final participantsLabel = _participantsLabel();
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.only(bottom: AppSizes.md),
+        margin: const EdgeInsets.only(bottom: AppSizes.md + 2),
         decoration: BoxDecoration(
           color: surface,
-          borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05), blurRadius: 10, offset: const Offset(0, 3))],
+          borderRadius: BorderRadius.circular(AppSizes.radiusLg + 2),
+          border: Border.all(color: divider.withValues(alpha: isDark ? 0.4 : 0.6), width: 1),
+          boxShadow: [
+            // Soft, wide "floating" shadow so the card lifts off a white page
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.28 : 0.06),
+              blurRadius: 24,
+              spreadRadius: -4,
+              offset: const Offset(0, 10),
+            ),
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.15 : 0.03),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ===== Image + badge + Booking ID =====
+            // ===== Image + gradient overlay + relative badge =====
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(AppSizes.radiusLg)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(AppSizes.radiusLg + 2)),
                   child: SizedBox(
                     height: 110,
                     width: double.infinity,
-                    child: booking.tripCoverImage.isNotEmpty
-                        ? Image.network(booking.tripCoverImage, fit: BoxFit.cover)
-                        : Container(color: Colors.grey.shade300),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        booking.tripCoverImage.isNotEmpty
+                            ? Image.network(booking.tripCoverImage, fit: BoxFit.cover)
+                            : Container(color: Colors.grey.shade300),
+                        DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [Colors.transparent, Colors.black.withValues(alpha: 0.18)],
+                              stops: const [0.6, 1.0],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                Positioned(
-                  top: 8, left: 8,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(AppSizes.radiusFull)),
-                    child: Text(relativeLabel, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700)),
+                if (booking.isUpcoming)
+                  Positioned(
+                    top: 8, left: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(AppSizes.radiusFull),
+                        boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.35), blurRadius: 8, offset: const Offset(0, 3))],
+                      ),
+                      child: Text(relativeLabel, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700)),
+                    ),
                   ),
-                ),
               ],
             ),
 
@@ -137,16 +169,16 @@ class BookingTripCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: AppSizes.sm),
-                  _buildStatusPill(),
+                  _buildStatusDot(),
                   const SizedBox(height: AppSizes.sm),
                   Divider(color: divider, height: 1),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
 
+                  // ---- Bigger, more tappable action row ----
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       _ActionButton(icon: Icons.description_outlined, label: 'Itinerary', onTap: onItinerary),
-                      _ActionButton(icon: Icons.receipt_long_outlined, label: 'Voucher', onTap: onVoucher),
                       _ActionButton(icon: Icons.edit_calendar_outlined, label: 'Manage Booking', onTap: onManage),
                       _ActionButton(icon: Icons.support_agent_rounded, label: 'Contact Support', onTap: onContactSupport),
                     ],
@@ -160,30 +192,28 @@ class BookingTripCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusPill() {
-    final now = DateTime.now();
+  Widget _buildStatusDot() {
     String label;
     Color color;
-    Color bg;
 
-    if (booking.bookingStatus == 'cancelled') {
+    if (booking.isCancelled) {
       label = 'Cancelled';
       color = AppColors.error;
-      bg = AppColors.error.withValues(alpha: 0.1);
-    } else if (booking.selectedDate.isBefore(now)) {
+    } else if (booking.isCompleted) {
       label = 'Completed';
       color = AppColors.accentBlue;
-      bg = AppColors.accentBlueLight;
     } else {
       label = 'Upcoming';
       color = AppColors.primary;
-      bg = AppColors.primaryLight;
     }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(AppSizes.radiusFull)),
-      child: Text(label, style: TextStyle(color: color, fontSize: 10.5, fontWeight: FontWeight.w700)),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(width: 7, height: 7, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        const SizedBox(width: 5),
+        Text(label, style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w700)),
+      ],
     );
   }
 
@@ -210,17 +240,26 @@ class _ActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textSecondary = Theme.of(context).brightness == Brightness.dark ? Colors.white70 : AppColors.textSecondaryLight;
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: AppColors.primary),
-          const SizedBox(height: 2),
-          Text(label, style: TextStyle(fontSize: 9, color: textSecondary, fontWeight: FontWeight.w600)),
-        ],
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppSizes.radiusSm),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 22, color: AppColors.primary),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 11, color: textSecondary, fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 }
-

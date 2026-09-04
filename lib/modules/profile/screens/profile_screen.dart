@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:goventure/modules/mybookings/screens/my_bookings_screen.dart';
-import '../../../services/trip_terms_services.dart';
+import 'package:goventure/modules/profile/screens/settings_screen.dart';
+import '../../mybookings/screens/my_bookings_screen.dart';
+import '../services/trip_terms_services.dart';
 import '../../auth/controllers/auth_controller.dart';
 import '../../auth/screens/login_screen.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
+import '../../favourite/screens/saved_trips_screen.dart';
 import '../widgets/edit_profile_screen.dart';
+import '../widgets/help_center_screen.dart';
+import '../widgets/my_reviews_screen.dart';
+import '../widgets/payment_methods_screen.dart';
+import '../widgets/terms_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -25,10 +31,9 @@ class ProfileScreen extends StatelessWidget {
     final primaryLight = isDark ? AppColors.surfaceDark : AppColors.primaryLight;
 
     final user = controller.currentUser;
-    final displayName = (user?.displayName?.trim().isNotEmpty ?? false)
-        ? user!.displayName!.trim()
-        : 'Guest';
+    final displayName = (user?.displayName?.trim().isNotEmpty ?? false) ? user!.displayName!.trim() : 'Guest';
     final email = user?.email ?? '';
+    final phone = user?.phoneNumber ?? '';
     final initial = displayName.isNotEmpty ? displayName[0].toUpperCase() : '?';
 
     return Scaffold(
@@ -41,7 +46,7 @@ class ProfileScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(AppSizes.md),
         children: [
-          // ===== Avatar + Name + Email =====
+          // ===== Avatar + Name + Email + Phone =====
           Center(
             child: Column(
               children: [
@@ -61,25 +66,25 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(email, style: TextStyle(fontSize: 13.5, color: textSecondary)),
                 ],
+                if (phone.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(phone, style: TextStyle(fontSize: 13.5, color: textSecondary)),
+                ],
               ],
             ),
           ),
           const SizedBox(height: AppSizes.lg),
 
-          // ===== Edit Profile shortcut =====
           _ProfileTile(
             icon: Icons.edit_outlined,
             label: 'Edit Profile',
             surface: surface,
             textPrimary: textPrimary,
             iconColor: primary,
-            onTap: () {
-              Get.offAll(() => EditProfileScreen());
-            },
+            onTap: () => Get.to(() => const EditProfileScreen()),
           ),
           const SizedBox(height: AppSizes.sm),
 
-          // ===== Account section =====
           _SectionLabel('Account', textSecondary: textSecondary),
           _ProfileCard(
             surface: surface,
@@ -91,19 +96,23 @@ class ProfileScreen extends StatelessWidget {
                 surface: surface,
                 textPrimary: textPrimary,
                 iconColor: primary,
-                onTap: () {
-                  Get.offAll(() => MyBookingsScreen());
-                },
+                onTap: () => Get.to(() => const MyBookingsScreen()),
               ),
               _ProfileTile(
                 icon: Icons.favorite_border_rounded,
-                label: 'Saved Trips',
+                label: 'My Wishlist',
                 surface: surface,
                 textPrimary: textPrimary,
                 iconColor: primary,
-                onTap: () {
-                  // TODO: navigate to Saved tab.
-                },
+                onTap: () => Get.to(() => const SavedTripsScreen()),
+              ),
+              _ProfileTile(
+                icon: Icons.rate_review_outlined,
+                label: 'My Reviews',
+                surface: surface,
+                textPrimary: textPrimary,
+                iconColor: primary,
+                onTap: () => Get.to(() => const MyReviewsScreen()),
               ),
               _ProfileTile(
                 icon: Icons.notifications_none_rounded,
@@ -111,53 +120,37 @@ class ProfileScreen extends StatelessWidget {
                 surface: surface,
                 textPrimary: textPrimary,
                 iconColor: primary,
-                onTap: () {},
+                onTap: () => Get.to(() => const NotificationsScreen()),
+              ),
+              _ProfileTile(
+                icon: Icons.credit_card_rounded,
+                label: 'Payment Method',
+                surface: surface,
+                textPrimary: textPrimary,
+                iconColor: primary,
+                onTap: () => Get.to(() => const PaymentMethodsScreen()),
               ),
             ],
           ),
           const SizedBox(height: AppSizes.md),
 
-          // ===== Preferences section =====
           _SectionLabel('Preferences', textSecondary: textSecondary),
           _ProfileCard(
             surface: surface,
             divider: divider,
             children: [
               _ProfileTile(
-                icon: Icons.language_rounded,
-                label: 'Language',
-                trailingText: 'English',
-                surface: surface,
-                textPrimary: textPrimary,
-                textSecondary: textSecondary,
-                iconColor: primary,
-                onTap: () {},
-              ),
-              _ProfileTile(
-                icon: Icons.attach_money_rounded,
-                label: 'Currency',
-                trailingText: 'PKR',
-                surface: surface,
-                textPrimary: textPrimary,
-                textSecondary: textSecondary,
-                iconColor: primary,
-                onTap: () {},
-              ),
-              _ProfileTile(
-                icon: Icons.dark_mode_outlined,
-                label: 'Dark Mode',
+                icon: Icons.settings_outlined,
+                label: 'Settings',
                 surface: surface,
                 textPrimary: textPrimary,
                 iconColor: primary,
-                onTap: () {
-                  // TODO: wire to your theme controller if you have one.
-                },
+                onTap: () => Get.to(() => const SettingsScreen()),
               ),
             ],
           ),
           const SizedBox(height: AppSizes.md),
 
-          // ===== Support section =====
           _SectionLabel('Support', textSecondary: textSecondary),
           _ProfileCard(
             surface: surface,
@@ -165,11 +158,11 @@ class ProfileScreen extends StatelessWidget {
             children: [
               _ProfileTile(
                 icon: Icons.help_outline_rounded,
-                label: 'Help Center',
+                label: 'Help & Support',
                 surface: surface,
                 textPrimary: textPrimary,
                 iconColor: primary,
-                onTap: () {},
+                onTap: () => Get.to(() => const HelpCenterScreen()),
               ),
               _ProfileTile(
                 icon: Icons.description_outlined,
@@ -177,9 +170,10 @@ class ProfileScreen extends StatelessWidget {
                 surface: surface,
                 textPrimary: textPrimary,
                 iconColor: primary,
-                onTap: () {
-                  Get.offAll(() => TermsService());
-                },
+                onTap: () => Get.to(() => TermsScreen(
+                  title: 'Terms & Conditions',
+                  fetcher: TermsService.getTripTerms,
+                )),
               ),
               _ProfileTile(
                 icon: Icons.privacy_tip_outlined,
@@ -187,13 +181,15 @@ class ProfileScreen extends StatelessWidget {
                 surface: surface,
                 textPrimary: textPrimary,
                 iconColor: primary,
-                onTap: () {},
+                onTap: () => Get.to(() => TermsScreen(
+                  title: 'Privacy Policy',
+                  fetcher: TermsService.getPrivacyPolicy,
+                )),
               ),
             ],
           ),
           const SizedBox(height: AppSizes.lg),
 
-          // ===== Logout =====
           _ProfileCard(
             surface: surface,
             divider: divider,
@@ -221,15 +217,12 @@ class ProfileScreen extends StatelessWidget {
         title: const Text('Log Out'),
         content: const Text('Are you sure you want to log out?'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('Cancel')),
           TextButton(
             onPressed: () async {
               Navigator.of(dialogContext).pop();
               await controller.signOut();
-              Get.offAll(() => LoginScreen());
+              Get.offAll(() => LoginScreen());   // ye offAll sahi hai — logout ke baad stack clear hona chahiye
             },
             child: const Text('Log Out', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.w700)),
           ),
@@ -238,6 +231,8 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 }
+
+// _SectionLabel, _ProfileCard, _ProfileTile — same as pehle, koi change nahi
 
 class _SectionLabel extends StatelessWidget {
   const _SectionLabel(this.text, {required this.textSecondary});
@@ -288,8 +283,6 @@ class _ProfileTile extends StatelessWidget {
     required this.textPrimary,
     required this.iconColor,
     required this.onTap,
-    this.trailingText,
-    this.textSecondary,
   });
 
   final IconData icon;
@@ -298,8 +291,6 @@ class _ProfileTile extends StatelessWidget {
   final Color textPrimary;
   final Color iconColor;
   final VoidCallback onTap;
-  final String? trailingText;
-  final Color? textSecondary;
 
   @override
   Widget build(BuildContext context) {
@@ -314,11 +305,7 @@ class _ProfileTile extends StatelessWidget {
             Expanded(
               child: Text(label, style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w600, color: textPrimary)),
             ),
-            if (trailingText != null)
-              Text(trailingText!, style: TextStyle(fontSize: 13, color: textSecondary)),
-            const SizedBox(width: 4),
-            Icon(Icons.chevron_right_rounded, size: 18, color: textSecondary ?? textPrimary.withOpacity(0.4)),
-          ],
+            ],
         ),
       ),
     );

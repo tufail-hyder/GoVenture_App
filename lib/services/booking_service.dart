@@ -28,9 +28,15 @@ class BookingService {
   static Future<List<BookingModel>> getUserBookings(String uid) async {
     final snap = await _bookingsRef
         .where('userId', isEqualTo: uid)
-        .orderBy('createdAt', descending: true)
         .get();
-    return snap.docs.map((d) => BookingModel.fromFirestore(d)).toList();
+
+    final bookings = snap.docs.map((d) => BookingModel.fromFirestore(d)).toList();
+    bookings.sort((a, b) {
+      final aDate = a.createdAt ?? DateTime(2000);
+      final bDate = b.createdAt ?? DateTime(2000);
+      return bDate.compareTo(aDate);
+    });
+    return bookings;
   }
 
   // ===== Home Screen "Upcoming Trips" =====

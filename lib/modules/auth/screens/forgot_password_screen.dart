@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:goventure/modules/auth/screens/login_screen.dart';
 import '../../../core/constants/app_text.dart';
+import '../../root/root_screen.dart';
 import '../controllers/auth_controller.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_images.dart';
@@ -268,12 +269,10 @@ class ForgotPasswordScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(16),
                               ),
                             ),
-                            onPressed: controller.isLoading.value
-                                ? null
-                                : () async {
-                              await controller.signInWithGoogle();
-                              if (controller.errorText.value.isEmpty) {
-                                Get.offAll(() => LoginScreen());
+                            onPressed: () async {
+                              final success = await controller.signInWithGoogle();
+                              if (success) {
+                                Get.offAll(() => const RootScreen());
                               }
                             },
                             child: Row(

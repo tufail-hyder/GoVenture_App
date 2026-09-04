@@ -39,7 +39,9 @@ class _ExploreScreenState extends State<ExploreScreen> {
   @override
   void initState() {
     super.initState();
-    controller = Get.put(ExploreController());
+    controller = Get.isRegistered<ExploreController>()
+        ? Get.find<ExploreController>()
+        : Get.put(ExploreController());
     searchController = TextEditingController(text: controller.searchQuery.value);
     _searchFocusNode.addListener(() => setState(() {}));
   }

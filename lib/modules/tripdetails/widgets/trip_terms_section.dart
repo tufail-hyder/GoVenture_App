@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
-import '../../../services/trip_terms_services.dart';
+import '../../profile/services/trip_terms_services.dart';
 import '../models/trip_terms_model.dart';
 import 'section_title.dart';
 
