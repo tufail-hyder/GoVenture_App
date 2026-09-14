@@ -62,17 +62,23 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final background = isDark ? AppColors.backgroundDark : AppColors.backgroundLight;
+    final surface = isDark ? AppColors.surfaceDark : AppColors.surfaceLight;
+    final textPrimary = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+    final textSecondary = isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
+    final divider = isDark ? AppColors.dividerDark : AppColors.dividerLight;
+
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: background,
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        backgroundColor: AppColors.backgroundLight,
+        backgroundColor: background,
         elevation: 0,
         automaticallyImplyLeading: false,
         titleSpacing: AppSizes.md,
-        title: const Text(
-          'Tours',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.textPrimaryLight),
+        title: Text('Tours',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textPrimary),
         ),
         actions: [
           Padding(
@@ -80,7 +86,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
             child: Stack(
               clipBehavior: Clip.none,
               children: [
-                const Icon(Icons.notifications_none_rounded, color: AppColors.textPrimaryLight),
+                Icon(Icons.notifications_none_rounded, color: textPrimary),
                 Positioned(
                   top: -1,
                   right: -1,
@@ -106,10 +112,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: AppSizes.sm + 2),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceLight,
+                  color: surface,
                   borderRadius: BorderRadius.circular(AppTheme.radiusPill),
                   border: Border.all(
-                    color: _searchFocusNode.hasFocus ? AppColors.primary : AppColors.dividerLight,
+                    color: _searchFocusNode.hasFocus ? AppColors.primary : divider,
                     width: _searchFocusNode.hasFocus ? 1.5 : 1,
                   ),
                 ),
@@ -118,7 +124,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     Icon(
                       Icons.search_rounded,
                       size: 20,
-                      color: _searchFocusNode.hasFocus ? AppColors.primary : AppColors.textSecondaryLight,
+                      color: _searchFocusNode.hasFocus ? AppColors.primary : textSecondary,
                     ),
                     const SizedBox(width: 8),
                     Expanded(
@@ -126,11 +132,11 @@ class _ExploreScreenState extends State<ExploreScreen> {
                         controller: searchController,
                         focusNode: _searchFocusNode,
                         onChanged: controller.setSearchQuery,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           hintText: 'Search tours',
-                          hintStyle: TextStyle(fontSize: 15, color: AppColors.textSecondaryLight),
+                          hintStyle: TextStyle(fontSize: 15, color: textSecondary),
                           isDense: true,
-                          contentPadding: EdgeInsets.symmetric(vertical: 12),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 12),
                           filled: false,
                           border: InputBorder.none,
                           enabledBorder: InputBorder.none,
@@ -139,18 +145,18 @@ class _ExploreScreenState extends State<ExploreScreen> {
                           errorBorder: InputBorder.none,
                           focusedErrorBorder: InputBorder.none,
                         ),
-                        style: const TextStyle(fontSize: 13.5, color: AppColors.textPrimaryLight),
+                        style: TextStyle(fontSize: 13.5, color: textPrimary),
                       ),
                     ),
                     InkWell(
                       onTap: () => Get.bottomSheet(const ExploreSortSheet(), isScrollControlled: true),
                       borderRadius: BorderRadius.circular(AppSizes.radiusFull),
-                      child: const Padding(
-                        padding: EdgeInsets.all(4),
-                        child: Icon(Icons.swap_vert_rounded, size: 20, color: AppColors.textPrimaryLight),
+                      child: Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: Icon(Icons.swap_vert_rounded, size: 20, color: textPrimary),
                       ),
                     ),
-                    Container(height: 18, width: 1, color: AppColors.dividerLight, margin: const EdgeInsets.symmetric(horizontal: 4)),
+                    Container(height: 18, width: 1, color: divider, margin: const EdgeInsets.symmetric(horizontal: 4)),
                     InkWell(
                       onTap: () => Get.bottomSheet(const ExploreFilterSheet(), isScrollControlled: true),
                       borderRadius: BorderRadius.circular(AppSizes.radiusFull),
@@ -172,6 +178,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
             const SizedBox(height: AppSizes.md),
 
             // ---- Customize Your Own Tour — entry point banner ----
+            // (gradient/white text pehle se dark background hai — is card ko dark mode mein change karne ki zaroorat nahi)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSizes.md),
               child: InkWell(
@@ -224,8 +231,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
             const SizedBox(height: AppSizes.md),
 
             // ---- Browse by Category ----
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: AppSizes.md),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSizes.md),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: SectionHeader(title: 'Browse by Category'),
@@ -254,20 +261,20 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
             const SizedBox(height: AppSizes.md),
 
-            // ---- All Tours / <Category> Tours heading — changes with category ----
+            // ---- All Tours / <Category> Tours heading ----
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSizes.md),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Obx(() => SectionHeader(
-                  title:  controller.selectedCategory.value == 'All'
+                  title: controller.selectedCategory.value == 'All'
                       ? 'All Tours'
                       : '${controller.selectedCategory.value} Tours',
                 )),
               ),
             ),
 
-            // ---- Result count once filters/search/category active ----
+            // ---- Result count ----
             Obx(() {
               final hasSearch = controller.searchQuery.value.trim().isNotEmpty;
               final hasCategory = controller.selectedCategory.value != 'All';
@@ -278,7 +285,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     '${controller.filteredTrips.length} tours found',
-                    style: const TextStyle(fontSize: 12.5, color: AppColors.textSecondaryLight, fontWeight: FontWeight.w600),
+                    style: TextStyle(fontSize: 12.5, color: textSecondary, fontWeight: FontWeight.w600),
                   ),
                 ),
               );
@@ -292,7 +299,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                // ---- Firestore fetch failed (network/permissions/etc) ----
                 if (controller.hasError.value) {
                   return Center(
                     child: Padding(
@@ -300,17 +306,14 @@ class _ExploreScreenState extends State<ExploreScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.cloud_off_rounded, size: 48, color: AppColors.textSecondaryLight),
+                          Icon(Icons.cloud_off_rounded, size: 48, color: textSecondary),
                           const SizedBox(height: AppSizes.sm),
-                          const Text(
-                            'Couldn\'t load tours',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimaryLight),
+                          Text('Couldn\'t load tours',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: textPrimary),
                           ),
                           const SizedBox(height: 4),
-                          const Text(
-                            'Please check your internet connection and try again.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 13, color: AppColors.textSecondaryLight),
+                          Text('Please check your internet connection and try again.',
+                            textAlign: TextAlign.center, style: TextStyle(fontSize: 13, color: textSecondary),
                           ),
                           const SizedBox(height: AppSizes.md),
                           ElevatedButton(
@@ -323,7 +326,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   );
                 }
 
-                // ---- No trips match filters, or Firestore genuinely has none ----
                 if (controller.filteredTrips.isEmpty) {
                   return EmptyState(onReset: _resetEverything);
                 }

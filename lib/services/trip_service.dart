@@ -22,6 +22,20 @@ class TripService {
     return trips;
   }
 
+  static Future<List<TripModel>> getTripsByDestination(String destinationId, {int limit = 20}) async {
+    try {
+      final snap = await _tripsRef
+          .where('isActive', isEqualTo: true)
+          .where('destinationId', isEqualTo: destinationId)
+          .limit(limit)
+          .get();
+      return snap.docs.map((d) => TripModel.fromFirestore(d)).toList();
+    } catch (e) {
+      print('⚠️ getTripsByDestination failed: $e');
+      return [];
+    }
+  }
+
   static Future<List<TripModel>> getFeaturedTrips({int limit = 6}) async {
     final snap = await _tripsRef
         .where('isActive', isEqualTo: true)

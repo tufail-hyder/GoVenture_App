@@ -10,14 +10,13 @@ import '../../../services/banner_service.dart';
 import '../../../services/blog_service.dart';
 import '../../../services/recently_viewed_service.dart';
 import '../../../core/constants/app_text.dart';
-import '../mock/home_mock_data.dart';
+import '../models/destination_model.dart';
+import '../services/destination_service.dart';
 
 class HomeController extends GetxController {
   final RxBool isLoading = true.obs;
   final RxString greeting = ''.obs;
 
-  /// Drives the red dot on the Home header's notification bell. Defaults
-  /// to false until a notifications backend exists to populate it.
   final RxBool hasUnreadNotifications = false.obs;
 
   final RxList<TripModel> topExperiences = <TripModel>[].obs;
@@ -31,6 +30,8 @@ class HomeController extends GetxController {
   final RxList<UpcomingBookingModel> upcomingBookings = <UpcomingBookingModel>[].obs;
   final RxList<BlogModel> blogPosts = <BlogModel>[].obs;
   final Rx<BannerModel?> banner = Rx<BannerModel?>(null);
+
+  final RxList<DestinationModel> popularDestinations = <DestinationModel>[].obs;
 
   @override
   void onInit() {
@@ -58,6 +59,7 @@ class HomeController extends GetxController {
 
       featuredTrips.value = await _safeCall(() => TripService.getFeaturedTrips(), 'featuredTrips');
       popularTrips.value = await _safeCall(() => TripService.getPopularTrips(), 'popularTrips');
+      popularDestinations.value = await _safeCall(() => DestinationService.getPopularDestinations(), 'popularDestinations',);
       recentlyViewedTrips.value = await _safeCall(() => TripService.getTripsByIds(recentIds), 'recentlyViewed');
       workcationTrips.value = await _safeCall(() => TripService.getTripsByType(AppTexts.tripTypeWorkcation), 'workcation');
       adventureTrips.value = await _safeCall(() => TripService.getTripsByType(AppTexts.tripTypeAdventure), 'adventure');
@@ -74,14 +76,6 @@ class HomeController extends GetxController {
             () => TripService.getRecommendedTrips(excludeIds: shownIds),
         'recommendedTrips',
       );
-      if (featuredTrips.isEmpty) featuredTrips.value = HomeMockData.trips();
-      if (popularTrips.isEmpty) popularTrips.value = HomeMockData.trips();
-      if (recommendedTrips.isEmpty) recommendedTrips.value = HomeMockData.trips();
-      if (recentlyViewedTrips.isEmpty) recentlyViewedTrips.value = HomeMockData.trips(count: 3);
-      if (topExperiences.isEmpty) topExperiences.value = HomeMockData.experiences();
-      if (banner.value == null) banner.value = HomeMockData.banner();
-      if (blogPosts.isEmpty) blogPosts.value = HomeMockData.blogs(count: 3);
-      if (upcomingBookings.isEmpty) upcomingBookings.value = HomeMockData.upcomingBookings();
     } finally {
       isLoading.value = false;
     }

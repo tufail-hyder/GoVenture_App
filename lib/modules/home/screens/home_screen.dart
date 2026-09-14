@@ -12,6 +12,7 @@ import '../widget/upcoming_trip_list_tile.dart';
 import '../widget/section_header.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_colors.dart';
+import 'destination_detail_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -71,8 +72,10 @@ class HomeScreen extends StatelessWidget {
                               itemBuilder: (_, i) => SizedBox(
                                 width: 140,
                                 child: DestinationMiniCard(
-                                  trip: controller.popularTrips[i],
-                                  onTap: () => Get.to(() => TripDetailScreen(tripId: controller.popularTrips[i].id)),
+                                  destination: controller.popularDestinations[i],
+                                  onTap: () => Get.to(() => DestinationDetailScreen(
+                                    destinationId: controller.popularDestinations[i].id,
+                                  )),
                                 ),
                               ),
                             ),

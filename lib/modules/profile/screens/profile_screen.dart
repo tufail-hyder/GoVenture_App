@@ -222,8 +222,8 @@ class ProfileScreen extends StatelessWidget {
             onPressed: () async {
               Navigator.of(dialogContext).pop();
               await controller.signOut();
-              Get.offAll(() => LoginScreen());   // ye offAll sahi hai — logout ke baad stack clear hona chahiye
-            },
+              Get.offAll(() => LoginScreen());
+              },
             child: const Text('Log Out', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.w700)),
           ),
         ],
@@ -232,7 +232,6 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
-// _SectionLabel, _ProfileCard, _ProfileTile — same as pehle, koi change nahi
 
 class _SectionLabel extends StatelessWidget {
   const _SectionLabel(this.text, {required this.textSecondary});

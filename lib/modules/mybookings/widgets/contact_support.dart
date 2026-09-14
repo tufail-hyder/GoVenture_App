@@ -3,10 +3,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../booking/models/booking_model.dart';
-
-// ---- Update these to your real support contact details. ----
-const String _supportEmail = 'goventure001@gmail.com';
-const String _supportPhone = '+923400189816';
+import '../../profile/models/support_contact_model.dart';
+import '../../profile/services/support_contact_service.dart';
 
 Future<void> showContactSupportSheet(BuildContext context, {required BookingModel booking}) {
   return showModalBottomSheet(
@@ -26,23 +24,23 @@ class _ContactSupportSheet extends StatelessWidget {
     return 'GV${raw.toUpperCase()}';
   }
 
-  Future<void> _openEmail() async {
+  Future<void> _openEmail(String email) async {
     final uri = Uri(
       scheme: 'mailto',
-      path: _supportEmail,
+      path: email,
       query: 'subject=${Uri.encodeComponent('Support for booking $_bookingCode')}'
           '&body=${Uri.encodeComponent('Hi GoVenture team,\n\nI need help with my booking $_bookingCode (${booking.tripTitle}).\n\n')}',
     );
     await launchUrl(uri);
   }
 
-  Future<void> _openCall() async {
-    await launchUrl(Uri(scheme: 'tel', path: _supportPhone));
+  Future<void> _openCall(String phone) async {
+    await launchUrl(Uri(scheme: 'tel', path: phone));
   }
 
-  Future<void> _openWhatsApp() async {
+  Future<void> _openWhatsApp(String whatsapp) async {
     final message = Uri.encodeComponent('Hi, I need help with my booking $_bookingCode (${booking.tripTitle}).');
-    final uri = Uri.parse('https://wa.me/${_supportPhone.replaceAll('+', '')}?text=$message');
+    final uri = Uri.parse('https://wa.me/${whatsapp.replaceAll('+', '')}?text=$message');
     await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
@@ -59,26 +57,66 @@ class _ContactSupportSheet extends StatelessWidget {
         color: surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(AppSizes.radiusXl)),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: Container(
-              width: 40, height: 4, margin: const EdgeInsets.only(bottom: AppSizes.md),
-              decoration: BoxDecoration(color: textSecondary.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(4)),
-            ),
-          ),
-          Text('Contact Support', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: textPrimary)),
-          const SizedBox(height: 4),
-          Text('Regarding booking $_bookingCode · ${booking.tripTitle}',
-              style: TextStyle(fontSize: 13, color: textSecondary)),
-          const SizedBox(height: AppSizes.md),
+      child: FutureBuilder<SupportContactModel>(
+        future: SupportContactService.getSupportContact(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const SizedBox(
+              height: 160,
+              child: Center(child: CircularProgressIndicator()),
+            );
+          }
 
-          _SupportOption(icon: Icons.chat_rounded, iconColor: const Color(0xFF25D366), label: 'WhatsApp', subtitle: _supportPhone, onTap: _openWhatsApp),
-          _SupportOption(icon: Icons.call_rounded, iconColor: AppColors.primary, label: 'Call Us', subtitle: _supportPhone, onTap: _openCall),
-          _SupportOption(icon: Icons.email_rounded, iconColor: AppColors.primary, label: 'Email Us', subtitle: _supportEmail, onTap: _openEmail),
-        ],
+          final contact = snapshot.data ?? SupportContactModel.empty();
+
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40, height: 4, margin: const EdgeInsets.only(bottom: AppSizes.md),
+                  decoration: BoxDecoration(color: textSecondary.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(4)),
+                ),
+              ),
+              Text('Contact Support', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: textPrimary)),
+              const SizedBox(height: 4),
+              Text('Regarding booking $_bookingCode · ${booking.tripTitle}',
+                  style: TextStyle(fontSize: 13, color: textSecondary)),
+              const SizedBox(height: AppSizes.md),
+
+              if (contact.whatsapp.isNotEmpty)
+                _SupportOption(
+                  icon: Icons.chat_rounded,
+                  iconColor: const Color(0xFF25D366),
+                  label: 'WhatsApp',
+                  subtitle: contact.whatsapp,
+                  onTap: () => _openWhatsApp(contact.whatsapp),
+                ),
+              if (contact.phone.isNotEmpty)
+                _SupportOption(
+                  icon: Icons.call_rounded,
+                  iconColor: AppColors.primary,
+                  label: 'Call Us',
+                  subtitle: contact.phone,
+                  onTap: () => _openCall(contact.phone),
+                ),
+              if (contact.email.isNotEmpty)
+                _SupportOption(
+                  icon: Icons.email_rounded,
+                  iconColor: AppColors.primary,
+                  label: 'Email Us',
+                  subtitle: contact.email,
+                  onTap: () => _openEmail(contact.email),
+                ),
+              if (contact.whatsapp.isEmpty && contact.phone.isEmpty && contact.email.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: AppSizes.md),
+                  child: Text('Support contact details are not available right now.', style: TextStyle(color: textSecondary)),
+                ),
+            ],
+          );
+        },
       ),
     );
   }

@@ -38,7 +38,7 @@ class _RootScreenState extends State<RootScreen> {
         items: const [
           BottomNavigationBarItem(icon: Icon(AppIcons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(AppIcons.explore), label: 'Explore'),
-          BottomNavigationBarItem(icon: Icon(AppIcons.bookings), label: 'Bookings'),
+          BottomNavigationBarItem(icon: Icon(AppIcons.bookings), label: 'My Trips'),
           BottomNavigationBarItem(icon: Icon(Icons.favorite_border_rounded), label: 'Saved'),
           BottomNavigationBarItem(icon: Icon(AppIcons.profile), label: 'Profile'),
         ],

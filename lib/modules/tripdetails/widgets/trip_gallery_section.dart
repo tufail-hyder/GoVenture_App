@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
+import '../../../core/utils/cloudinary_utils.dart';
 import 'section_title.dart';
 
 class TripGallerySection extends StatelessWidget {
@@ -16,7 +18,7 @@ class TripGallerySection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TripSectionTitle('Photo Gallery'),
-        SizedBox(height: AppSizes.md),
+        const SizedBox(height: AppSizes.md),
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -61,12 +63,13 @@ class _GalleryThumb extends StatelessWidget {
     if (url.isEmpty) return Container(color: placeholderColor);
 
     if (_isNetwork) {
-      return Image.network(
-        url,
+      // Grid thumbnail chhota hai — 250px kaafi hai, load tez hoga aur cache ho jayega.
+      return CachedNetworkImage(
+        imageUrl: optimizedCloudinaryUrl(url, width: 250),
         fit: BoxFit.cover,
-        loadingBuilder: (context, child, progress) =>
-        progress == null ? child : Container(color: placeholderColor),
-        errorBuilder: (context, error, stackTrace) => Container(
+        fadeInDuration: const Duration(milliseconds: 200),
+        placeholder: (context, url) => Container(color: placeholderColor),
+        errorWidget: (context, url, error) => Container(
           color: placeholderColor,
           child: Icon(Icons.broken_image_outlined, color: iconColor),
         ),
@@ -134,10 +137,16 @@ class _FullscreenGalleryViewerState extends State<FullscreenGalleryViewer> {
                 maxScale: 4,
                 child: Center(
                   child: _isNetwork(url)
-                      ? Image.network(
-                    url,
+                      ? CachedNetworkImage(
+                    // Fullscreen view hai — grid se badi resolution chahiye, isliye 1000px.
+                    imageUrl: optimizedCloudinaryUrl(url, width: 1000),
                     fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) => const Icon(
+                    placeholder: (context, url) => const SizedBox(
+                      width: 32,
+                      height: 32,
+                      child: CircularProgressIndicator(color: Colors.white54, strokeWidth: 2),
+                    ),
+                    errorWidget: (context, url, error) => const Icon(
                       Icons.broken_image_outlined,
                       color: Colors.white54,
                       size: 48,

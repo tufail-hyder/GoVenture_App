@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import '../../tripdetails/models/trip_model.dart';
 import '../../../core/constants/app_sizes.dart';
+import '../models/destination_model.dart';
 
 class DestinationMiniCard extends StatelessWidget {
-  final TripModel trip;
+  final DestinationModel destination;
   final VoidCallback onTap;
   final VoidCallback? onFavoriteTap;
 
   const DestinationMiniCard({
     super.key,
-    required this.trip,
+    required this.destination,
     required this.onTap,
     this.onFavoriteTap,
   });
@@ -24,9 +24,9 @@ class DestinationMiniCard extends StatelessWidget {
           fit: StackFit.expand,
           children: [
             // ===== Poori image background =====
-            trip.coverImage.isNotEmpty
+            destination.coverImage.isNotEmpty
                 ? Image.network(
-              trip.coverImage,
+              destination.coverImage,
               fit: BoxFit.cover,
               errorBuilder: (_, _, _) => Container(color: Colors.grey.shade400),
             )
@@ -71,7 +71,7 @@ class DestinationMiniCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    trip.title,
+                    destination.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -81,7 +81,7 @@ class DestinationMiniCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    trip.location,
+                    destination.location,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(color: Colors.white, fontSize: 14),

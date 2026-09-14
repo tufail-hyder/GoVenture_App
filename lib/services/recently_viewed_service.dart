@@ -13,8 +13,8 @@ class RecentlyViewedService {
   /// Trip detail screen open hote hi ye call karna hai (Step 7 mein add karenge)
   static Future<void> addTripId(String tripId) async {
     final ids = getIds();
-    ids.remove(tripId);       // duplicate hatao
-    ids.insert(0, tripId);    // sab se aage rakho (most recent)
+    ids.remove(tripId);
+    ids.insert(0, tripId);
     if (ids.length > _maxItems) ids.removeRange(_maxItems, ids.length);
     await _box.write(_key, ids);
   }

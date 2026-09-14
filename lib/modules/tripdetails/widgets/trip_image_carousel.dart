@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
+import '../../../core/utils/cloudinary_utils.dart';
 
 class TripImageCarousel extends StatefulWidget {
   final List<String> images;
@@ -49,13 +51,21 @@ class _TripImageCarouselState extends State<TripImageCarousel> {
             itemCount: images.length,
             itemBuilder: (context, index) {
               final url = images[index];
-              return url.isNotEmpty
-                  ? Image.network(url, fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(color: Colors.grey.shade300),
-              )
-                  : Container(
-                color: Colors.grey.shade300,
-                child: const Icon(Icons.image_outlined, size: 48, color: AppColors.textSecondaryLight),
+              if (url.isEmpty) {
+                return Container(
+                  color: Colors.grey.shade300,
+                  child: const Icon(Icons.image_outlined, size: 48, color: AppColors.textSecondaryLight),
+                );
+              }
+              return CachedNetworkImage(
+                imageUrl: optimizedCloudinaryUrl(url, width: 800),   // carousel bara hai, isliye 800px
+                fit: BoxFit.cover,
+                fadeInDuration: const Duration(milliseconds: 200),
+                placeholder: (context, url) => Container(color: Colors.grey.shade200),
+                errorWidget: (context, url, error) => Container(
+                  color: Colors.grey.shade300,
+                  child: const Icon(Icons.image_outlined, size: 48, color: AppColors.textSecondaryLight),
+                ),
               );
             },
           ),
