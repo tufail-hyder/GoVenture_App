@@ -20,4 +20,8 @@ class DestinationService {
           (doc) => doc.exists ? DestinationModel.fromMap(doc.id, doc.data()!) : null,
     );
   }
+  static Future<List<DestinationModel>> getAllDestinations() async {
+    final snap = await _col.orderBy('order', descending: false).get();
+    return snap.docs.map((d) => DestinationModel.fromMap(d.id, d.data())).toList();
+  }
 }

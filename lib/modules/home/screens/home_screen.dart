@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../tripdetails/screens/trip_detail_screen.dart';
@@ -12,6 +14,7 @@ import '../widget/upcoming_trip_list_tile.dart';
 import '../widget/section_header.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_colors.dart';
+import 'all_destinations_screen.dart';
 import 'destination_detail_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -59,15 +62,18 @@ class HomeScreen extends StatelessWidget {
 
 
                         // ===== Featured Destinations =====
-                        if (controller.popularTrips.isNotEmpty) ...[
+                        if (controller.popularDestinations.isNotEmpty) ...[
                           const SizedBox(height: AppSizes.md),
-                          SectionHeader(title: 'Popular Destinations', onSeeAll: () {}),
+                          SectionHeader(
+                            title: 'Popular Destinations',
+                            onSeeAll: () => Get.to(() => const AllDestinationsScreen()),
+                          ),
                           const SizedBox(height: AppSizes.sm + 2),
                           SizedBox(
                             height: 170,
                             child: ListView.separated(
                               scrollDirection: Axis.horizontal,
-                              itemCount: controller.popularTrips.length,
+                              itemCount: min(3, controller.popularDestinations.length),
                               separatorBuilder: (_, __) => const SizedBox(width: AppSizes.sm),
                               itemBuilder: (_, i) => SizedBox(
                                 width: 140,

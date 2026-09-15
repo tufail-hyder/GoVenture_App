@@ -67,6 +67,7 @@ int _asInt(dynamic value, {int fallback = 0}) {
 class TripModel {
   final String id;
   final String title;
+  final String destinationId;
   final String slug;
   final String location;
   final double price;
@@ -104,9 +105,11 @@ class TripModel {
   final double? childPricePercent;
   final bool infantsFree;
 
+
   TripModel({
     required this.id,
     required this.title,
+    this.destinationId = '',
     required this.slug,
     required this.location,
     required this.price,
@@ -150,6 +153,7 @@ class TripModel {
     return TripModel(
       id: doc.id,
       title: data['title'] ?? '',
+      destinationId: data['destinationId'] ?? '',
       slug: data['slug'] ?? '',
       location: data['location'] ?? '',
       price: _asDouble(data['price']),

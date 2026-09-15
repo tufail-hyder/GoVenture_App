@@ -31,7 +31,7 @@ class TripService {
           .get();
       return snap.docs.map((d) => TripModel.fromFirestore(d)).toList();
     } catch (e) {
-      print('⚠️ getTripsByDestination failed: $e');
+      print('⚠️ getTripsByDestination error: $e');
       return [];
     }
   }

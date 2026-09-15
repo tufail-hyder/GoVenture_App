@@ -33,6 +33,10 @@ class DestinationModel {
   final String coverImage;
   final double elevation;
   final String weatherSummary;
+  final String coldestMonth;
+  final String coldestTemp;
+  final String hottestMonth;
+  final String hottestTemp;
 
   final String overview;
   final String cultureHistory;
@@ -52,6 +56,10 @@ class DestinationModel {
     required this.location,
     required this.coverImage,
     this.elevation = 0,
+    this.coldestMonth = '',
+    this.coldestTemp = '',
+    this.hottestMonth = '',
+    this.hottestTemp = '',
     this.weatherSummary = '',
     this.overview = '',
     this.cultureHistory = '',
@@ -79,6 +87,10 @@ class DestinationModel {
       location: m['location'] ?? '',
       coverImage: m['coverImage'] ?? '',
       elevation: double.tryParse(m['elevation']?.toString() ?? '') ?? 0,
+      coldestMonth: m['coldestMonth'] ?? '',
+      coldestTemp: m['coldestTemp'] ?? '',
+      hottestMonth: m['hottestMonth'] ?? '',
+      hottestTemp: m['hottestTemp'] ?? '',
       weatherSummary: m['weatherSummary'] ?? '',
       overview: m['overview'] ?? '',
       cultureHistory: m['cultureHistory'] ?? '',

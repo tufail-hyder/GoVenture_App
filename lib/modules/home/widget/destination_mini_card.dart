@@ -82,18 +82,9 @@ class DestinationMiniCard extends StatelessWidget {
                   ),
                   Text(
                     destination.location,
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                  const SizedBox(height: 2),
-                  Row(
-                    children: [
-                      const Icon(Icons.star_rounded, size: 14, color: Colors.amber),
-                      const SizedBox(width: 2),
-                      const Text('4.9', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
-                      const Text(' (185)', style: TextStyle(color: Colors.white, fontSize: 13)),
-                    ],
+                    style: const TextStyle(color: Colors.white, fontSize: 15),
                   ),
                 ],
               ),
