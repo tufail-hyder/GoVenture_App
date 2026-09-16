@@ -1,5 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+class BlogSection {
+  final String heading;
+  final String description;
+  final String image;
+
+  BlogSection({required this.heading, required this.description, this.image = ''});
+
+  factory BlogSection.fromMap(Map<String, dynamic> map) => BlogSection(
+    heading: map['heading'] ?? '',
+    description: map['description'] ?? '',
+    image: map['image'] ?? '',
+  );
+}
+
 class BlogModel {
   final String id;
   final String title;
@@ -10,6 +24,8 @@ class BlogModel {
   final bool isPublished;
   final DateTime? publishedAt;
   final int readTimeMinutes;
+  final String introText;
+  final List<BlogSection> sections;
 
   BlogModel({
     required this.id,
@@ -21,6 +37,8 @@ class BlogModel {
     required this.isPublished,
     this.publishedAt,
     this.readTimeMinutes = 0,
+    this.introText = '',
+    this.sections = const [],
   });
 
   factory BlogModel.fromFirestore(DocumentSnapshot doc) {
@@ -35,6 +53,11 @@ class BlogModel {
       isPublished: data['isPublished'] ?? false,
       publishedAt: (data['publishedAt'] as Timestamp?)?.toDate(),
       readTimeMinutes: (data['readTimeMinutes'] as num?)?.toInt() ?? 0,
+      introText: data['introText'] ?? '',
+      sections: (data['sections'] as List<dynamic>? ?? [])
+          .whereType<Map<String, dynamic>>()
+          .map((m) => BlogSection.fromMap(m))
+          .toList(),
     );
   }
 }

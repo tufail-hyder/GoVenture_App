@@ -15,7 +15,9 @@ import '../widget/upcoming_trip_list_tile.dart';
 import '../widget/section_header.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_colors.dart';
+import 'all_blogs_screen.dart';
 import 'all_destinations_screen.dart';
+import 'blog_detail_screen.dart';
 import 'destination_detail_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -36,10 +38,12 @@ class HomeScreen extends StatelessWidget {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               for (final trip in trips.take(4)) {
                 if (trip.coverImage.isNotEmpty) {
-                  precacheImage(
-                    CachedNetworkImageProvider(optimizedCloudinaryUrl(trip.coverImage, width: 360)),
-                    context,
-                  );
+                  precacheImage(CachedNetworkImageProvider(optimizedCloudinaryUrl(trip.coverImage, width: 360)), context);
+                }
+              }
+              for (final blog in controller.blogPosts.take(3)) {
+                if (blog.coverImage.isNotEmpty) {
+                  precacheImage(CachedNetworkImageProvider(optimizedCloudinaryUrl(blog.coverImage, width: 320)), context);
                 }
               }
             });
@@ -154,20 +158,25 @@ class HomeScreen extends StatelessWidget {
                           const SizedBox(height: AppSizes.md),
                           SectionHeader(
                             title: 'Latest from Our Blog',
-                            onSeeAll: () {},
+                            onSeeAll: () => Get.to(() => const AllBlogsScreen()),
                           ),
                           const SizedBox(height: AppSizes.sm + 2),
                           SizedBox(
-                            height: 140,
+                            height: 200,
                             child: ListView.separated(
                               scrollDirection: Axis.horizontal,
                               itemCount: controller.blogPosts.length,
-                              separatorBuilder: (_, __) =>
-                              const SizedBox(width: AppSizes.sm),
-                              itemBuilder: (_, i) => BlogCardHorizontal(
-                                blog: controller.blogPosts[i],
-                                onTap: () {},
-                              ),
+                              separatorBuilder: (_, __) => const SizedBox(width: AppSizes.sm),
+                              itemBuilder: (_, i) {
+                                final blog = controller.blogPosts[i];
+                                return SizedBox(
+                                  width: 160,
+                                  child: BlogCardHorizontal(
+                                    blog: blog,
+                                    onTap: () => Get.to(() => BlogDetailScreen(blog: blog)),
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ],
