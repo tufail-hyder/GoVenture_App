@@ -1,12 +1,12 @@
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../tripdetails/models/trip_model.dart';
-import '../../../models/banner_model.dart';
+import '../models/banner_model.dart';
 import '../../../models/blog_model.dart';
 import '../../../models/upcoming_booking_model.dart';
 import '../../../services/booking_service.dart';
 import '../../../services/trip_service.dart';
-import '../../../services/banner_service.dart';
+import '../services/banner_service.dart';
 import '../../../services/blog_service.dart';
 import '../../../services/recently_viewed_service.dart';
 import '../../../core/constants/app_text.dart';
@@ -29,7 +29,7 @@ class HomeController extends GetxController {
   final RxList<TripModel> retreatTrips = <TripModel>[].obs;
   final RxList<UpcomingBookingModel> upcomingBookings = <UpcomingBookingModel>[].obs;
   final RxList<BlogModel> blogPosts = <BlogModel>[].obs;
-  final Rx<BannerModel?> banner = Rx<BannerModel?>(null);
+  final Rxn<BannerModel> banner = Rxn<BannerModel>();
 
   final RxList<DestinationModel> popularDestinations = <DestinationModel>[].obs;
 
@@ -38,6 +38,7 @@ class HomeController extends GetxController {
     super.onInit();
     _setGreeting();
     fetchHomeData();
+    BannerService.getActiveBanner().then((b) => print('Banner test: $b'));
   }
 
   void _setGreeting() {
@@ -92,7 +93,8 @@ class HomeController extends GetxController {
   Future<T?> _safeCallNullable<T>(Future<T?> Function() call, String label) async {
     try {
       return await call();
-    } catch (e) {
+    } catch (e, st) {
+      print('❌ $label failed: $e');
       return null;
     }
   }

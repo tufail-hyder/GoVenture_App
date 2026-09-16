@@ -5,21 +5,15 @@ import '../modules/tripdetails/models/trip_model.dart';
 class TripService {
   static final CollectionReference _tripsRef =
   FirebaseFirestore.instance.collection(AppTexts.colTrips);
+
   static Future<List<TripModel>> getAllTrips({int limit = 100}) async {
-    final snap = await _tripsRef
+    final snap = await FirebaseFirestore.instance
+        .collection('trips')
         .where('isActive', isEqualTo: true)
+        .orderBy('createdAt', descending: true)
         .limit(limit)
         .get();
-
-    final trips = <TripModel>[];
-    for (final doc in snap.docs) {
-      try {
-        trips.add(TripModel.fromFirestore(doc));
-      } catch (e) {
-        print('⚠️ Skipping malformed trip document [${doc.id}]: $e');
-      }
-    }
-    return trips;
+    return snap.docs.map((d) => TripModel.fromFirestore(d)).toList();
   }
 
   static Future<List<TripModel>> getTripsByDestination(String destinationId, {int limit = 20}) async {
@@ -31,7 +25,6 @@ class TripService {
           .get();
       return snap.docs.map((d) => TripModel.fromFirestore(d)).toList();
     } catch (e) {
-      print('⚠️ getTripsByDestination error: $e');
       return [];
     }
   }
@@ -101,4 +94,6 @@ class TripService {
         .get();
     return snap.docs.map((d) => TripModel.fromFirestore(d)).toList();
   }
+
+
 }

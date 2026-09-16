@@ -37,7 +37,7 @@ class DestinationModel {
   final String coldestTemp;
   final String hottestMonth;
   final String hottestTemp;
-
+  final String region;
   final String overview;
   final String cultureHistory;
   final List<SeasonInfo> seasons;
@@ -60,6 +60,7 @@ class DestinationModel {
     this.coldestTemp = '',
     this.hottestMonth = '',
     this.hottestTemp = '',
+    this.region = '',
     this.weatherSummary = '',
     this.overview = '',
     this.cultureHistory = '',
@@ -90,6 +91,7 @@ class DestinationModel {
       coldestMonth: m['coldestMonth'] ?? '',
       coldestTemp: m['coldestTemp'] ?? '',
       hottestMonth: m['hottestMonth'] ?? '',
+      region: m['region'] ?? '',
       hottestTemp: m['hottestTemp'] ?? '',
       weatherSummary: m['weatherSummary'] ?? '',
       overview: m['overview'] ?? '',

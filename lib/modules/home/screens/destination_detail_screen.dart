@@ -120,25 +120,19 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              dest.title,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 26,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            Text(dest.title, style: const TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold,),
                             ),
                             if (dest.location.isNotEmpty) ...[
                               const SizedBox(height: 4),
                               Row(
-                                mainAxisSize: MainAxisSize.min,
                                 children: [
                                   const Icon(Icons.location_on_rounded, size: 15, color: Colors.white70),
                                   const SizedBox(width: 4),
-                                  Flexible(
+                                  Expanded(
                                     child: Text(
                                       dest.location,
                                       style: const TextStyle(color: Colors.white70, fontSize: 14),
+                                      maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
@@ -376,7 +370,14 @@ class _StatChip extends StatelessWidget {
         children: [
           Icon(icon, size: 15, color: AppColors.primary),
           const SizedBox(width: 6),
-          Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: scheme.onSurface)),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: scheme.onSurface),
+            ),
+          ),
         ],
       ),
     );

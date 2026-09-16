@@ -1,11 +1,12 @@
 import 'dart:math';
-
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:goventure/modules/home/screens/trips_list_screen.dart';
+import '../../../core/utils/cloudinary_utils.dart';
 import '../../tripdetails/screens/trip_detail_screen.dart';
 import '../controllers/home_controller.dart';
 import '../widget/blog_card_horizontal.dart';
-import '../widget/category_grid.dart';
 import '../widget/destination_mini_card.dart';
 import '../widget/featured_trip_card.dart';
 import '../widget/home_hero_header.dart';
@@ -31,7 +32,17 @@ class HomeScreen extends StatelessWidget {
         child: SafeArea(
           top: false,
           child: Obx(() {
-
+            final trips = controller.featuredTrips;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              for (final trip in trips.take(4)) {
+                if (trip.coverImage.isNotEmpty) {
+                  precacheImage(
+                    CachedNetworkImageProvider(optimizedCloudinaryUrl(trip.coverImage, width: 360)),
+                    context,
+                  );
+                }
+              }
+            });
             return RefreshIndicator(
               onRefresh: controller.refresh,
               child: ListView(
@@ -56,10 +67,10 @@ class HomeScreen extends StatelessWidget {
                         if (controller.banner.value != null) ...[
                           SeasonalBannerStrip(
                             banner: controller.banner.value!,
-                            onCtaTap: () {},
+                            onCtaTap: () => Get.to(() => const TripsListScreen(mode: TripListMode.all)),
+                            onClose: () => controller.banner.value = null,
                           ),
                         ],
-
 
                         // ===== Featured Destinations =====
                         if (controller.popularDestinations.isNotEmpty) ...[
@@ -87,11 +98,39 @@ class HomeScreen extends StatelessWidget {
                             ),
                           ),
                         ],
+                        // ===== Featured Trips =====
+                        if (controller.featuredTrips.isNotEmpty) ...[
+                          const SizedBox(height: AppSizes.md),
+                          SectionHeader(
+                            title: 'Featured Trips',
+                            onSeeAll: () => Get.to(() => const TripsListScreen(mode: TripListMode.featured)),
+                          ),
+                          const SizedBox(height: AppSizes.sm + 2),
+                          SizedBox(
+                            height: 220,
+                            child: ListView.separated(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: min(3, controller.featuredTrips.length),
+                              separatorBuilder: (_, __) => const SizedBox(width: AppSizes.sm),
+                              itemBuilder: (_, i) {
+                                final trip = controller.featuredTrips[i];
+                                return FeaturedTripCard(
+                                  trip: trip,
+                                  badgeText: 'Featured',
+                                  badgeColor: AppColors.primary,
+                                  onTap: () => Get.to(() => TripDetailScreen(tripId: trip.id)),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
 
                         // ===== Upcoming Trips =====
                         if (controller.upcomingBookings.isNotEmpty) ...[
                           const SizedBox(height: AppSizes.md),
-                          SectionHeader(title: 'Upcoming Trips', onSeeAll: () {}),
+                          SectionHeader(title: 'Upcoming Trips',
+                            onSeeAll: () => Get.to(() => const TripsListScreen(mode: TripListMode.featured)),
+                          ),
                           const SizedBox(height: AppSizes.sm + 2),
                           SizedBox(
                             height: 260,
@@ -103,67 +142,6 @@ class HomeScreen extends StatelessWidget {
                                 booking: controller.upcomingBookings[i],
                                 onTap: () {},
                               ),
-                            ),
-                          ),
-                        ],
-                        const SizedBox(height: AppSizes.md),
-                        // ===== Category Grid =====
-                        SectionHeader(title: 'Trip Categories'),
-                        const SizedBox(height: AppSizes.sm + 2),
-                        CategoryGrid(
-                          items: [
-                            CategoryGridItem(
-                              title: 'Workcation',
-                              subtitle: '${controller.workcationTrips.length} Trips',
-                              icon: Icons.laptop_mac_rounded,
-                              bgColor: AppColors.primaryLight,
-                              iconColor: AppColors.primary,
-                              onTap: () {},
-                            ),
-                            CategoryGridItem(
-                              title: 'Adventure',
-                              subtitle: '${controller.adventureTrips.length} Trips',
-                              icon: Icons.terrain_rounded,
-                              bgColor: AppColors.accentBlueLight,
-                              iconColor: AppColors.accentBlue,
-                              onTap: () {},
-                            ),
-                            CategoryGridItem(
-                              title: 'Retreats',
-                              subtitle: '${controller.retreatTrips.length} Trips',
-                              icon: Icons.spa_rounded,
-                              bgColor: AppColors.accentPurpleLight,
-                              iconColor: AppColors.accentPurple,
-                              onTap: () {},
-                            ),
-                          ],
-                        ),
-
-                        // ===== Featured Trips =====
-                        if (controller.featuredTrips.isNotEmpty) ...[
-                          const SizedBox(height: AppSizes.md),
-                          SectionHeader(title: 'Featured Trips', onSeeAll: () {}),
-                          const SizedBox(height: AppSizes.sm + 2),
-                          SizedBox(
-                            height: 220,
-                            child: ListView.separated(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: controller.featuredTrips.length,
-                              separatorBuilder: (_, __) => const SizedBox(width: AppSizes.sm),
-                              itemBuilder: (_, i) {
-                                const badges = [
-                                  ('Best Seller', AppColors.primary),
-                                  ('Top Rated', AppColors.accentPurple),
-                                  ('Popular', AppColors.warning),
-                                ];
-                                final badge = badges[i % badges.length];
-                                return FeaturedTripCard(
-                                  trip: controller.featuredTrips[i],
-                                  badgeText: badge.$1,
-                                  badgeColor: badge.$2,
-                                  onTap: () => Get.to(() => TripDetailScreen(tripId: controller.featuredTrips[i].id)),
-                                );
-                              },
                             ),
                           ),
                         ],

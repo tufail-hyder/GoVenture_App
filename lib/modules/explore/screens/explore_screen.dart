@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:goventure/modules/home/widget/section_header.dart';
 import '../../customtours/screens/customize_tour_screen.dart';
+import '../../home/screens/trips_list_screen.dart';
 import '../../tripdetails/screens/trip_detail_screen.dart';
 import '../controllers/explore_controller.dart';
 import '../widgets/category_chip.dart';
@@ -262,6 +263,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
             const SizedBox(height: AppSizes.md),
 
             // ---- All Tours / <Category> Tours heading ----
+            // ---- All Tours / <Category> Tours heading ----
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSizes.md),
               child: Align(
@@ -270,6 +272,9 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   title: controller.selectedCategory.value == 'All'
                       ? 'All Tours'
                       : '${controller.selectedCategory.value} Tours',
+                  onSeeAll: controller.selectedCategory.value == 'All'
+                      ? () => Get.to(() => const TripsListScreen(mode: TripListMode.all))
+                      : null,
                 )),
               ),
             ),
