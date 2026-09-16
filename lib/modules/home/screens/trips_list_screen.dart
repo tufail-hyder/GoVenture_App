@@ -72,9 +72,9 @@ class _TripsListScreenState extends State<TripsListScreen> {
           final aDate = TripService.nextAvailableDate(a);
           final bDate = TripService.nextAvailableDate(b);
           if (aDate == null && bDate == null) return 0;
-          if (aDate == null) return 1; // koi upcoming date nahi to end mein
+          if (aDate == null) return 1;
           if (bDate == null) return -1;
-          return aDate.compareTo(bDate); // jo date sabse jaldi hai wo pehle
+          return aDate.compareTo(bDate);
         });
         break;
       case _SortOption.priceLow:

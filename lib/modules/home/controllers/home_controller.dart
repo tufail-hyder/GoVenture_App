@@ -57,17 +57,31 @@ class HomeController extends GetxController {
       final recentIds = RecentlyViewedService.getIds();
       final uid = FirebaseAuth.instance.currentUser?.uid;
 
-      featuredTrips.value = await _safeCall(() => TripService.getFeaturedTrips(), 'featuredTrips');
-      popularTrips.value = await _safeCall(() => TripService.getPopularTrips(), 'popularTrips');
-      popularDestinations.value = await _safeCall(() => DestinationService.getPopularDestinations(), 'popularDestinations',);
-      recentlyViewedTrips.value = await _safeCall(() => TripService.getTripsByIds(recentIds), 'recentlyViewed');
-      workcationTrips.value = await _safeCall(() => TripService.getTripsByType(AppTexts.tripTypeWorkcation), 'workcation');
-      adventureTrips.value = await _safeCall(() => TripService.getTripsByType(AppTexts.tripTypeAdventure), 'adventure');
-      retreatTrips.value = await _safeCall(() => TripService.getTripsByType(AppTexts.tripTypeRetreat), 'retreat');
+      final results = await Future.wait([
+        _safeCall(() => TripService.getFeaturedTrips(), 'featuredTrips'),
+        _safeCall(() => TripService.getPopularTrips(), 'popularTrips'),
+        _safeCall(() => DestinationService.getPopularDestinations(), 'popularDestinations'),
+        _safeCall(() => TripService.getTripsByIds(recentIds), 'recentlyViewed'),
+        _safeCall(() => TripService.getTripsByType(AppTexts.tripTypeWorkcation), 'workcation'),
+        _safeCall(() => TripService.getTripsByType(AppTexts.tripTypeAdventure), 'adventure'),
+        _safeCall(() => TripService.getTripsByType(AppTexts.tripTypeRetreat), 'retreat'),
+        _safeCall(() => BlogService.getLatestBlogs(), 'blogPosts'),
+        _safeCall(() => TripService.getTopExperiences(), 'topExperiences'),
+        _safeCall(() => TripService.getUpcomingTrips(), 'upcomingTrips'),
+      ]);
+
+      featuredTrips.value = results[0] as List<TripModel>;
+      popularTrips.value = results[1] as List<TripModel>;
+      popularDestinations.value = results[2] as List<DestinationModel>;
+      recentlyViewedTrips.value = results[3] as List<TripModel>;
+      workcationTrips.value = results[4] as List<TripModel>;
+      adventureTrips.value = results[5] as List<TripModel>;
+      retreatTrips.value = results[6] as List<TripModel>;
+      blogPosts.value = results[7] as List<BlogModel>;
+      topExperiences.value = results[8] as List<TripModel>;
+      upcomingTrips.value = results[9] as List<TripModel>;
+
       banner.value = await _safeCallNullable(() => BannerService.getActiveBanner(), 'banner');
-      blogPosts.value = await _safeCall(() => BlogService.getLatestBlogs(), 'blogPosts');
-      topExperiences.value = await _safeCall(() => TripService.getTopExperiences(), 'topExperiences');
-      upcomingTrips.value = await _safeCall(() => TripService.getUpcomingTrips(), 'upcomingTrips');
 
       final shownIds = [...featuredTrips.map((t) => t.id), ...popularTrips.map((t) => t.id)];
       recommendedTrips.value = await _safeCall(
@@ -83,8 +97,6 @@ class HomeController extends GetxController {
     try {
       return await call();
     } catch (e) {
-      // ignore: avoid_print
-      print('❌ $label failed: $e');
       return <T>[];
     }
   }

@@ -56,7 +56,7 @@ class UpcomingTripListTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(8),
         margin: const EdgeInsets.only(bottom: 2),
         decoration: BoxDecoration(
           color: backgroundColor,
@@ -110,13 +110,13 @@ class UpcomingTripListTile extends StatelessWidget {
                 ),
               ),
 
-            const SizedBox(width: 10),
+            const SizedBox(width: 8),
 
             // ===== Thumbnail =====
             ClipRRect(
               borderRadius: BorderRadius.circular(AppSizes.radiusSm),
               child: SizedBox(
-                width: 56,
+                width: 66,
                 height: 56,
                 child: trip.coverImage.isNotEmpty
                     ? Image.network(

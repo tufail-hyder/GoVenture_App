@@ -9,6 +9,7 @@ class BlogModel {
   final String excerpt;
   final bool isPublished;
   final DateTime? publishedAt;
+  final int readTimeMinutes;
 
   BlogModel({
     required this.id,
@@ -19,6 +20,7 @@ class BlogModel {
     required this.excerpt,
     required this.isPublished,
     this.publishedAt,
+    this.readTimeMinutes = 0,
   });
 
   factory BlogModel.fromFirestore(DocumentSnapshot doc) {
@@ -32,6 +34,7 @@ class BlogModel {
       excerpt: data['excerpt'] ?? '',
       isPublished: data['isPublished'] ?? false,
       publishedAt: (data['publishedAt'] as Timestamp?)?.toDate(),
+      readTimeMinutes: (data['readTimeMinutes'] as num?)?.toInt() ?? 0,
     );
   }
 }
