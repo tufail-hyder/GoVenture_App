@@ -73,10 +73,10 @@ class BlogCardHorizontal extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   if (publishedDate.isNotEmpty)
-                    Text(publishedDate, style: TextStyle(fontSize: 11, color: secondaryColor, fontWeight: FontWeight.w500)),
+                    Text(publishedDate, style: TextStyle(fontSize: 12, color: secondaryColor, fontWeight: FontWeight.w600)),
                   if (readTimeLabel.isNotEmpty) ...[
                     const SizedBox(height: 2),
-                    Text(readTimeLabel, style: TextStyle(fontSize: 11, color: secondaryColor, fontWeight: FontWeight.w500)),
+                    Text(readTimeLabel, style: TextStyle(fontSize: 12, color: secondaryColor, fontWeight: FontWeight.w600)),
                   ],
                 ],
               ),
