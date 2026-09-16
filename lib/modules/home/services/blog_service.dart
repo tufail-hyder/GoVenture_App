@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../core/constants/app_text.dart';
+import '../../../core/constants/app_text.dart';
 import '../models/blog_model.dart';
 
 class BlogService {

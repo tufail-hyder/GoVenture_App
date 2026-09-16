@@ -6,6 +6,16 @@ class TripService {
   static final CollectionReference _tripsRef =
   FirebaseFirestore.instance.collection(AppTexts.colTrips);
 
+  static DateTime? nextAvailableDate(TripModel trip) {
+    final now = DateTime.now();
+    final future = trip.availableDates
+        .map((s) => s.date)
+        .where((d) => d.isAfter(now))
+        .toList()
+      ..sort();
+    return future.isNotEmpty ? future.first : null;
+  }
+
   static Future<List<TripModel>> getAllTrips({int limit = 100}) async {
     final snap = await FirebaseFirestore.instance
         .collection('trips')
@@ -14,6 +24,32 @@ class TripService {
         .limit(limit)
         .get();
     return snap.docs.map((d) => TripModel.fromFirestore(d)).toList();
+  }
+
+  static Future<List<TripModel>> getUpcomingTrips({int limit = 5}) async {
+    final snap = await _tripsRef.where('isActive', isEqualTo: true).get();
+    final now = DateTime.now();
+    final withNextDate = <MapEntry<TripModel, DateTime>>[];
+
+    for (final doc in snap.docs) {
+      try {
+        final trip = TripModel.fromFirestore(doc);
+        final futureDates = trip.availableDates
+            .map((s) => s.date)
+            .where((d) => d.isAfter(now))
+            .toList()
+          ..sort();
+        if (futureDates.isNotEmpty) {
+          withNextDate.add(MapEntry(trip, futureDates.first));
+        }
+      } catch (e) {
+        // ignore: avoid_print
+        print('⚠️ Skipping trip [${doc.id}] in getUpcomingTrips: $e');
+      }
+    }
+
+    withNextDate.sort((a, b) => a.value.compareTo(b.value));
+    return withNextDate.take(limit).map((e) => e.key).toList();
   }
 
   static Future<List<TripModel>> getTripsByDestination(String destinationId, {int limit = 20}) async {
@@ -94,6 +130,4 @@ class TripService {
         .get();
     return snap.docs.map((d) => TripModel.fromFirestore(d)).toList();
   }
-
-
 }

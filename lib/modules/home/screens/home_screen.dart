@@ -126,23 +126,26 @@ class HomeScreen extends StatelessWidget {
                         ],
 
                         // ===== Upcoming Trips =====
-                        if (controller.upcomingBookings.isNotEmpty) ...[
+                        if (controller.upcomingTrips.isNotEmpty) ...[
                           const SizedBox(height: AppSizes.md),
-                          SectionHeader(title: 'Upcoming Trips',
-                            onSeeAll: () => Get.to(() => const TripsListScreen(mode: TripListMode.featured)),
+                          SectionHeader(
+                            title: 'Upcoming Trips',
+                            onSeeAll: () => Get.to(() => const TripsListScreen(mode: TripListMode.upcoming)),
                           ),
                           const SizedBox(height: AppSizes.sm + 2),
-                          SizedBox(
-                            height: 260,
-                            child: ListView.separated(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: controller.upcomingBookings.length,
-                              separatorBuilder: (_, _) => const SizedBox(width: AppSizes.sm),
-                              itemBuilder: (_, i) => UpcomingTripListTile(
-                                booking: controller.upcomingBookings[i],
-                                onTap: () {},
-                              ),
-                            ),
+                          ListView.separated(
+                            padding: EdgeInsets.zero,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: min(3, controller.upcomingTrips.length),
+                            separatorBuilder: (_, __) => const SizedBox(height: AppSizes.sm),
+                            itemBuilder: (_, i) {
+                              final trip = controller.upcomingTrips[i];
+                              return UpcomingTripListTile(
+                                trip: trip,
+                                onTap: () => Get.to(() => TripDetailScreen(tripId: trip.id)),
+                              );
+                            },
                           ),
                         ],
 

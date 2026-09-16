@@ -1,10 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../tripdetails/models/trip_model.dart';
 import '../../tripdetails/screens/trip_detail_screen.dart';
-import '../../../models/upcoming_booking_model.dart';
-import '../../../services/booking_service.dart';
 import '../../../services/trip_service.dart';
 import '../widget/featured_trip_card.dart';
 import '../widget/upcoming_trip_list_tile.dart';
@@ -29,7 +26,7 @@ class _TripsListScreenState extends State<TripsListScreen> {
   final TextEditingController _searchController = TextEditingController();
 
   late final Future<List<TripModel>>? _tripsFuture;
-  late final Future<List<UpcomingBookingModel>>? _bookingsFuture;
+  late final Future<List<TripModel>>? _upcomingTripsFuture;
 
   @override
   void initState() {
@@ -37,18 +34,15 @@ class _TripsListScreenState extends State<TripsListScreen> {
     switch (widget.mode) {
       case TripListMode.featured:
         _tripsFuture = TripService.getFeaturedTrips(limit: 100);
-        _bookingsFuture = null;
+        _upcomingTripsFuture = null;
         break;
       case TripListMode.all:
         _tripsFuture = TripService.getAllTrips(limit: 100);
-        _bookingsFuture = null;
+        _upcomingTripsFuture = null;
         break;
       case TripListMode.upcoming:
-        final uid = FirebaseAuth.instance.currentUser?.uid;
         _tripsFuture = null;
-        _bookingsFuture = uid != null
-            ? BookingService.getUpcomingBookings(uid)
-            : Future.value(<UpcomingBookingModel>[]);
+        _upcomingTripsFuture = TripService.getUpcomingTrips(limit: 100);
         break;
     }
   }
@@ -73,6 +67,16 @@ class _TripsListScreenState extends State<TripsListScreen> {
   List<TripModel> _applySort(List<TripModel> list) {
     final sorted = [...list];
     switch (_sortOption) {
+      case _SortOption.none:
+        sorted.sort((a, b) {
+          final aDate = TripService.nextAvailableDate(a);
+          final bDate = TripService.nextAvailableDate(b);
+          if (aDate == null && bDate == null) return 0;
+          if (aDate == null) return 1; // koi upcoming date nahi to end mein
+          if (bDate == null) return -1;
+          return aDate.compareTo(bDate); // jo date sabse jaldi hai wo pehle
+        });
+        break;
       case _SortOption.priceLow:
         sorted.sort((a, b) => a.price.compareTo(b.price));
         break;
@@ -101,8 +105,6 @@ class _TripsListScreenState extends State<TripsListScreen> {
       case _SortOption.durationLong:
         sorted.sort((a, b) => b.duration.compareTo(a.duration));
         break;
-      case _SortOption.none:
-        break;
     }
     return sorted;
   }
@@ -110,14 +112,14 @@ class _TripsListScreenState extends State<TripsListScreen> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final isTripMode = widget.mode != TripListMode.upcoming;
+    final isGridMode = widget.mode != TripListMode.upcoming;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(title: Text(_title)),
-        body: isTripMode ? _buildTripGrid(scheme) : _buildUpcomingList(),
+        body: isGridMode ? _buildTripGrid(scheme) : _buildUpcomingList(),
       ),
     );
   }
@@ -186,9 +188,7 @@ class _TripsListScreenState extends State<TripsListScreen> {
                   trip: trips[i],
                   badgeText: 'Featured',
                   badgeColor: AppColors.primary,
-                  onTap: () => Get.to(
-                        () => TripDetailScreen(tripId: trips[i].id),
-                  ),
+                  onTap: () => Get.to(() => TripDetailScreen(tripId: trips[i].id)),
                 ),
               ),
             ),
@@ -198,27 +198,27 @@ class _TripsListScreenState extends State<TripsListScreen> {
     );
   }
 
-  // ===== Upcoming Tours: vertical list, existing tile reuse =====
+  // ===== Upcoming Tours: vertical list =====
   Widget _buildUpcomingList() {
-    return FutureBuilder<List<UpcomingBookingModel>>(
-      future: _bookingsFuture,
+    return FutureBuilder<List<TripModel>>(
+      future: _upcomingTripsFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-        final bookings = snapshot.data ?? [];
+        final trips = snapshot.data ?? [];
 
-        if (bookings.isEmpty) {
+        if (trips.isEmpty) {
           return const Center(child: Text('No upcoming tours'));
         }
 
         return ListView.separated(
           padding: const EdgeInsets.all(AppSizes.md),
-          itemCount: bookings.length,
+          itemCount: trips.length,
           separatorBuilder: (_, __) => const SizedBox(height: AppSizes.sm),
           itemBuilder: (_, i) => UpcomingTripListTile(
-            booking: bookings[i],
-            onTap: () {},
+            trip: trips[i],
+            onTap: () => Get.to(() => TripDetailScreen(tripId: trips[i].id)),
           ),
         );
       },

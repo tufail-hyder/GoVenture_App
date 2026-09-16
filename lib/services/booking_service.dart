@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../core/constants/app_text.dart';
-import '../models/upcoming_booking_model.dart';
+import '../modules/mybookings/models/upcoming_booking_model.dart';
 import '../modules/booking/models/booking_model.dart';
 
 class BookingService {
@@ -37,17 +37,6 @@ class BookingService {
       return bDate.compareTo(aDate);
     });
     return bookings;
-  }
-
-  // ===== Home Screen "Upcoming Trips" =====
-  static Future<List<UpcomingBookingModel>> getUpcomingBookings(String uid, {int limit = 5}) async {
-    final snap = await _bookingsRef
-        .where('userId', isEqualTo: uid)
-        .where('status', isEqualTo: AppTexts.bookingUpcoming)
-        .orderBy('travelDate')
-        .limit(limit)
-        .get();
-    return snap.docs.map((d) => UpcomingBookingModel.fromFirestore(d)).toList();
   }
 
   // ===== Payment Method Update  =====

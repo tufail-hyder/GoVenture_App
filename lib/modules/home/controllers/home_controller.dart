@@ -2,12 +2,11 @@ import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../tripdetails/models/trip_model.dart';
 import '../models/banner_model.dart';
-import '../../../models/blog_model.dart';
-import '../../../models/upcoming_booking_model.dart';
-import '../../../services/booking_service.dart';
+import '../models/blog_model.dart';
+import '../../mybookings/models/upcoming_booking_model.dart';
 import '../../../services/trip_service.dart';
 import '../services/banner_service.dart';
-import '../../../services/blog_service.dart';
+import '../services/blog_service.dart';
 import '../../../services/recently_viewed_service.dart';
 import '../../../core/constants/app_text.dart';
 import '../models/destination_model.dart';
@@ -30,7 +29,7 @@ class HomeController extends GetxController {
   final RxList<UpcomingBookingModel> upcomingBookings = <UpcomingBookingModel>[].obs;
   final RxList<BlogModel> blogPosts = <BlogModel>[].obs;
   final Rxn<BannerModel> banner = Rxn<BannerModel>();
-
+  final RxList<TripModel> upcomingTrips = <TripModel>[].obs;
   final RxList<DestinationModel> popularDestinations = <DestinationModel>[].obs;
 
   @override
@@ -68,9 +67,7 @@ class HomeController extends GetxController {
       banner.value = await _safeCallNullable(() => BannerService.getActiveBanner(), 'banner');
       blogPosts.value = await _safeCall(() => BlogService.getLatestBlogs(), 'blogPosts');
       topExperiences.value = await _safeCall(() => TripService.getTopExperiences(), 'topExperiences');
-      upcomingBookings.value = uid != null
-          ? await _safeCall(() => BookingService.getUpcomingBookings(uid), 'upcomingBookings')
-          : [];
+      upcomingTrips.value = await _safeCall(() => TripService.getUpcomingTrips(), 'upcomingTrips');
 
       final shownIds = [...featuredTrips.map((t) => t.id), ...popularTrips.map((t) => t.id)];
       recommendedTrips.value = await _safeCall(
@@ -86,6 +83,8 @@ class HomeController extends GetxController {
     try {
       return await call();
     } catch (e) {
+      // ignore: avoid_print
+      print('❌ $label failed: $e');
       return <T>[];
     }
   }

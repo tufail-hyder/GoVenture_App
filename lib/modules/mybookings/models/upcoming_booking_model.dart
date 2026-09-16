@@ -9,7 +9,7 @@ class UpcomingBookingModel {
   final String status;
   final int? duration;
   final num? amount;
-  final int? travelers;   // NAYA — Booking Form (Step 9) mein set hoga
+  final int? travelers;
 
   UpcomingBookingModel({
     required this.id,
@@ -25,16 +25,22 @@ class UpcomingBookingModel {
 
   factory UpcomingBookingModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
+
+    final adults = (data['adults'] as num?)?.toInt() ?? 0;
+    final children = (data['children'] as num?)?.toInt() ?? 0;
+    final infants = (data['infants'] as num?)?.toInt() ?? 0;
+    final totalTravelers = adults + children + infants;
+
     return UpcomingBookingModel(
       id: doc.id,
       tripId: data['tripId'] ?? '',
       tripTitle: data['tripTitle'] ?? '',
-      tripImage: data['tripImage'] ?? '',
+      tripImage: data['tripCoverImage'] ?? data['tripImage'] ?? '',
       travelDate: (data['travelDate'] as Timestamp?)?.toDate(),
       status: data['status'] ?? '',
-      duration: data['duration'],
-      amount: data['amount'],
-      travelers: data['travelers'],
+      duration: (data['tripDuration'] as num?)?.toInt() ?? (data['duration'] as num?)?.toInt(),
+      amount: data['grandTotal'] ?? data['amount'],
+      travelers: totalTravelers > 0 ? totalTravelers : null,
     );
   }
 }
