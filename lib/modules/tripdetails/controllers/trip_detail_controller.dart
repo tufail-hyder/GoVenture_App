@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../favourite/controllers/favorites_controller.dart';
 import '../models/review_model.dart';
 import '../../../services/trip_service.dart';
 import '../../../services/review_service.dart';
@@ -11,10 +12,11 @@ class TripDetailController extends GetxController {
   final String tripId;
   TripDetailController(this.tripId);
 
+  final FavoritesController _favorites = Get.find<FavoritesController>();
+
   final Rx<TripModel?> trip = Rx<TripModel?>(null);
   final RxList<ReviewModel> reviews = <ReviewModel>[].obs;
   final RxBool isLoading = true.obs;
-  final RxBool isFavorite = false.obs;
   final RxInt carouselIndex = 0.obs;
   final Rx<TripDateSlot?> selectedSlot = Rx<TripDateSlot?>(null);
 
@@ -47,9 +49,9 @@ class TripDetailController extends GetxController {
     }
   }
 
-  void toggleFavorite() {
-    isFavorite.value = !isFavorite.value;
-  }
+  // ===== Favorite — ab shared FavoritesController se, poori app ke sath sync =====
+  bool get isFavorite => _favorites.isFavorite(tripId);
+  Future<void> toggleFavorite() => _favorites.toggle(tripId);
 
   void setCarouselIndex(int index) => carouselIndex.value = index;
 
@@ -77,5 +79,4 @@ class TripDetailController extends GetxController {
     await ReviewService.deleteReview(tripId: tripId, reviewId: reviewId);
     reviews.value = await ReviewService.getReviewsForTrip(tripId);
   }
-
 }

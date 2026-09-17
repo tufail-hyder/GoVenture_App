@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../tripdetails/models/trip_model.dart';
+import 'app_network_image.dart';
 
 class UpcomingTripListTile extends StatelessWidget {
   final TripModel trip;
@@ -119,10 +120,11 @@ class UpcomingTripListTile extends StatelessWidget {
                 width: 66,
                 height: 56,
                 child: trip.coverImage.isNotEmpty
-                    ? Image.network(
-                  trip.coverImage,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
+                    ? AppNetworkImage(
+                  url: trip.coverImage,
+                  width: 66,
+                  height: 56,
+                  errorBuilder: (_) => Container(
                     color: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
                     child: Icon(Icons.image_not_supported_outlined, color: secondaryColor, size: 20),
                   ),
@@ -133,7 +135,6 @@ class UpcomingTripListTile extends StatelessWidget {
                 ),
               ),
             ),
-
             const SizedBox(width: 10),
 
             // ===== Middle content: title + meta rows =====

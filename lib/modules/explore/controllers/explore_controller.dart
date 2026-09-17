@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import '../../favourite/services/favourite_services.dart';
+import '../../favourite/controllers/favorites_controller.dart';
 import '../../tripdetails/models/trip_model.dart';
 import '../../../services/trip_service.dart';
 
@@ -13,7 +12,11 @@ class ExploreController extends GetxController {
   final RxList<TripModel> _allTrips = <TripModel>[].obs;
   final RxList<TripModel> filteredTrips = <TripModel>[].obs;
 
-  final RxSet<String> favoriteTripIds = <String>{}.obs;
+  final FavoritesController _favorites = Get.find<FavoritesController>();
+
+  // ===== Ab shared FavoritesController se hi favorite state milta hai =====
+  RxSet<String> get favoriteTripIds => _favorites.tripIds;
+  Future<void> toggleFavorite(String tripId) => _favorites.toggle(tripId);
 
   // ---------------- Filter state ----------------
   final RxSet<String> selectedLocations = <String>{}.obs;
@@ -26,7 +29,6 @@ class ExploreController extends GetxController {
 
   final Rx<SortOption> sortOption = SortOption.popularity.obs;
 
-  // ---------------- Dynamic filter options (Firestore trips se derive hote hain) ----------------
   final RxList<String> availableLocations = <String>[].obs;
   final RxList<String> availableTypes = <String>[].obs;
 
@@ -34,7 +36,6 @@ class ExploreController extends GetxController {
   void onInit() {
     super.onInit();
     fetchTrips();
-    _loadFavorites();
   }
 
   Future<void> fetchTrips() async {
@@ -44,7 +45,6 @@ class ExploreController extends GetxController {
       final trips = await TripService.getAllTrips();
       _allTrips.value = trips;
 
-      // ===== Locations/Types ab Firestore data se dynamically nikal rahe hain =====
       availableLocations.value = trips.map((t) => t.location).where((l) => l.isNotEmpty).toSet().toList()..sort();
       availableTypes.value = trips.map((t) => t.type).where((t) => t.isNotEmpty).toSet().toList()..sort();
 
@@ -58,7 +58,6 @@ class ExploreController extends GetxController {
 
       _applyFilters();
     } catch (e, st) {
-      // ignore: avoid_print
       print('ExploreController.fetchTrips ERROR: $e');
       // ignore: avoid_print
       print(st);
@@ -71,59 +70,6 @@ class ExploreController extends GetxController {
   }
 
   Future<void> refresh() => fetchTrips();
-
-  // ---------------- Favorites (persisted to Firestore) ----------------
-  Future<void> _loadFavorites() async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null) return;
-    try {
-      final ids = await FavoritesService.getFavoriteTripIds(uid);
-      favoriteTripIds.value = ids.toSet();
-    } catch (e) {
-      // ignore: avoid_print
-      print('ExploreController._loadFavorites ERROR: $e');
-    }
-  }
-
-  Future<String?> _ensureUid() async {
-    var user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      try {
-        final credential = await FirebaseAuth.instance.signInAnonymously();
-        user = credential.user;
-      } catch (_) {
-        return null;
-      }
-    }
-    return user?.uid;
-  }
-
-  Future<void> toggleFavorite(String tripId) async {
-    final wasFavorite = favoriteTripIds.contains(tripId);
-    if (wasFavorite) {
-      favoriteTripIds.remove(tripId);
-    } else {
-      favoriteTripIds.add(tripId);
-    }
-
-    final uid = await _ensureUid();
-    if (uid == null) {
-      return;
-    }
-
-    try {
-      await FavoritesService.toggleFavorite(uid: uid, tripId: tripId);
-    } catch (e) {
-      // ignore: avoid_print
-      print('ExploreController.toggleFavorite ERROR: $e');
-      // Roll back the optimistic update.
-      if (wasFavorite) {
-        favoriteTripIds.add(tripId);
-      } else {
-        favoriteTripIds.remove(tripId);
-      }
-    }
-  }
 
   void toggleLocation(String location) {
     selectedLocations.contains(location)

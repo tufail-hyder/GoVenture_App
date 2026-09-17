@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_text.dart';
+import '../services/profile_photo_services.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -17,6 +18,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late final TextEditingController _nameCtrl;
   late final TextEditingController _phoneCtrl;
   bool _isSaving = false;
+  bool _isUploadingPhoto = false;
+  String? _photoUrl;
 
   User? get _user => FirebaseAuth.instance.currentUser;
 
@@ -25,6 +28,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.initState();
     _nameCtrl = TextEditingController(text: _user?.displayName ?? '');
     _phoneCtrl = TextEditingController(text: _user?.phoneNumber ?? '');
+    _photoUrl = _user?.photoURL;
   }
 
   @override
@@ -32,6 +36,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _nameCtrl.dispose();
     _phoneCtrl.dispose();
     super.dispose();
+  }
+
+  Future<void> _changePhoto() async {
+    setState(() => _isUploadingPhoto = true);
+    final url = await ProfilePhotoService.pickAndUpload(context);
+    if (!mounted) return;
+    setState(() => _isUploadingPhoto = false);
+    if (url != null) {
+      setState(() => _photoUrl = url);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Profile picture updated')),
+      );
+    }
   }
 
   Future<void> _save() async {
@@ -78,6 +95,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final textSecondary = isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
     final surface = isDark ? AppColors.surfaceDark : AppColors.surfaceLight;
     final divider = isDark ? AppColors.dividerDark : AppColors.dividerLight;
+    final primary = isDark ? AppColors.primaryDarkMode : AppColors.primary;
+    final primaryLight = isDark ? AppColors.surfaceDark : AppColors.primaryLight;
+
+    final displayName = _nameCtrl.text.trim();
+    final initial = displayName.isNotEmpty ? displayName[0].toUpperCase() : '?';
 
     return Scaffold(
       backgroundColor: background,
@@ -89,6 +111,67 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       body: ListView(
         padding: const EdgeInsets.all(AppSizes.md),
         children: [
+          // ===== Avatar with change-photo affordance =====
+          Center(
+            child: Column(
+              children: [
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    CircleAvatar(
+                      radius: 48,
+                      backgroundColor: primaryLight,
+                      backgroundImage: (_photoUrl != null && _photoUrl!.isNotEmpty)
+                          ? NetworkImage(_photoUrl!)
+                          : null,
+                      child: (_photoUrl == null || _photoUrl!.isEmpty)
+                          ? Text(initial, style: TextStyle(fontSize: 34, fontWeight: FontWeight.w800, color: primary))
+                          : null,
+                    ),
+                    if (_isUploadingPhoto)
+                      Positioned.fill(
+                        child: CircleAvatar(
+                          radius: 48,
+                          backgroundColor: Colors.black.withOpacity(0.35),
+                          child: const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(strokeWidth: 2.4, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    Positioned(
+                      bottom: -2,
+                      right: -2,
+                      child: GestureDetector(
+                        onTap: _isUploadingPhoto ? null : _changePhoto,
+                        child: Container(
+                          padding: const EdgeInsets.all(7),
+                          decoration: BoxDecoration(
+                            color: primary,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: background, width: 2.5),
+                          ),
+                          child: const Icon(Icons.camera_alt_rounded, size: 16, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSizes.sm + 2),
+                TextButton(
+                  onPressed: _isUploadingPhoto ? null : _changePhoto,
+                  style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(0, 0)),
+                  child: Text(
+                    'Change Profile Picture',
+                    style: TextStyle(color: primary, fontWeight: FontWeight.w700, fontSize: 13.5),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSizes.lg),
+
           Text('Full Name', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: textSecondary)),
           const SizedBox(height: 6),
           TextField(

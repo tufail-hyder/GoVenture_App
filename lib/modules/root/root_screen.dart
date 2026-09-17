@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:goventure/modules/explore/screens/explore_screen.dart';
 import 'package:goventure/modules/root/root_nav_controller.dart';
+import 'package:goventure/modules/root/widgets/curved_bottom_nav.dart';
 import '../favourite/screens/saved_trips_screen.dart';
 import '../home/screens/home_screen.dart';
 import '../auth/controllers/auth_controller.dart';
@@ -32,16 +33,14 @@ class _RootScreenState extends State<RootScreen> {
 
     return Obx(() => Scaffold(
       body: IndexedStack(index: navController.currentIndex.value, children: screens),
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: CurvedBottomNav(
         currentIndex: navController.currentIndex.value,
         onTap: navController.changeTab,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(AppIcons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(AppIcons.explore), label: 'Explore'),
-          BottomNavigationBarItem(icon: Icon(AppIcons.bookings), label: 'My Trips'),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite_border_rounded), label: 'Saved'),
-          BottomNavigationBarItem(icon: Icon(AppIcons.profile), label: 'Profile'),
-        ],
+        homeIcon: AppIcons.home,
+        exploreIcon: AppIcons.explore,
+        centerIcon: AppIcons.bookings,
+        savedIcon: Icons.favorite_border_rounded,
+        profileIcon: AppIcons.profile,
       ),
     ));
   }

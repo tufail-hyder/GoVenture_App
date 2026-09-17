@@ -20,7 +20,6 @@ dependencies:
   get: ^4.7.3
   get_storage: ^2.1.1
   smooth_page_indicator: ^2.0.1
-  flutter_launcher_icons: ^0.14.4
   intl: ^0.20.3
   shimmer_animation: ^2.2.2+1
   cloudinary_public: ^0.23.1
@@ -35,12 +34,21 @@ dependencies:
   syncfusion_flutter_pdfviewer: ^34.2.5
   iconsax_flutter: ^1.0.1
   flutter_native_splash: ^2.4.8
+  image_picker: ^1.2.3
+  firebase_storage: ^13.6.0
 
 
 dev_dependencies:
+  flutter_launcher_icons: ^0.14.4
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/icons/app_icon.png"
+  min_sdk_android: 21
 
 flutter:
   uses-material-design: true
@@ -68,12 +76,16 @@ flutter:
 flutter_native_splash:
   color: "#FFFFFF"
   color_dark: "#121212"
+  image: assets/images/logos/app_light_logo_splash.png
+  image_dark: assets/images/logos/app_dark_logo_splash.png
 
-  image: assets/images/logos/app_light_logo.png
+  android_gravity: center
+  ios_content_mode: center
 
   android_12:
     color: "#FFFFFF"
     color_dark: "#121212"
-    image: assets/images/logos/app_light_logo.png
+    image: assets/images/logos/app_light_logo_splash.png
+    image_dark: assets/images/logos/app_dark_logo_splash.png
 
   fullscreen: true

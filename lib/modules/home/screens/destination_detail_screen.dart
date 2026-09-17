@@ -8,6 +8,7 @@ import '../../tripdetails/models/trip_model.dart';
 import '../../../services/trip_service.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
+import '../widget/favorite_button.dart';
 
 class DestinationDetailScreen extends StatefulWidget {
   final String destinationId;
@@ -75,21 +76,17 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen>
             backgroundColor: AppColors.primary,
             leading: Padding(
               padding: const EdgeInsets.all(8),
-              child: _CircleIconButton(
+              child: CircleIconButton(
                 icon: Icons.arrow_back_ios_new_rounded,
                 onTap: () => Navigator.of(context).pop(),
               ),
             ),
-            actions: [
-              Padding(
-                padding: const EdgeInsets.all(8),
-                child: _CircleIconButton(
-                  icon: _isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                  iconColor: _isFavorite ? Colors.redAccent : Colors.white,
-                  onTap: () => setState(() => _isFavorite = !_isFavorite),
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: FavoriteButton(destinationId: dest.id),
                 ),
-              ),
-            ],
+              ],
             flexibleSpace: FlexibleSpaceBar(
                   collapseMode: CollapseMode.parallax,
                   background: Stack(
@@ -716,11 +713,11 @@ class _TourCard extends StatelessWidget {
   }
 }
 
-class _CircleIconButton extends StatelessWidget {
+class CircleIconButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
   final Color iconColor;
-  const _CircleIconButton({required this.icon, required this.onTap, this.iconColor = Colors.white});
+  const CircleIconButton({super.key, required this.icon, required this.onTap, this.iconColor = Colors.white});
 
   @override
   Widget build(BuildContext context) {

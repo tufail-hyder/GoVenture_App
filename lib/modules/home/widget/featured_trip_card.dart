@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../favourite/services/favourite_services.dart';
+import '../../favourite/controllers/favorites_controller.dart';
 import '../../tripdetails/models/trip_model.dart';
 import '../../../services/review_service.dart';
 import '../../../core/constants/app_colors.dart';
@@ -28,22 +28,14 @@ class FeaturedTripCard extends StatefulWidget {
 }
 
 class _FeaturedTripCardState extends State<FeaturedTripCard> {
-  bool _isFavorite = false;
+  final FavoritesController _favorites = Get.find<FavoritesController>();
   double _liveRating = 0;
   int _liveReviewCount = 0;
 
   @override
   void initState() {
     super.initState();
-    _loadFavoriteStatus();
     _loadLiveRating();
-  }
-
-  Future<void> _loadFavoriteStatus() async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null) return;
-    final fav = await FavoritesService.isFavorite(uid, widget.trip.id);
-    if (mounted) setState(() => _isFavorite = fav);
   }
 
   Future<void> _loadLiveRating() async {
@@ -59,54 +51,29 @@ class _FeaturedTripCardState extends State<FeaturedTripCard> {
     }
   }
 
-  Future<void> _toggleFavorite() async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please log in first to add favorites')),
-      );
-      return;
-    }
-    setState(() => _isFavorite = !_isFavorite);
-    await FavoritesService.toggleFavorite(uid: uid, tripId: widget.trip.id);
-  }
-
   ({String label, IconData icon, Color color})? _resolveBadge() {
     final trip = widget.trip;
 
-    // Top Rated: high rating + kaafi reviews ho
     if (_liveReviewCount >= 15 && _liveRating >= 4.5) {
       return (label: 'Top Rated', icon: Icons.workspace_premium_rounded, color: const Color(0xFFE0A415));
     }
 
-    // Popular: decent review volume
     if (_liveReviewCount >= 8) {
       return (label: 'Popular', icon: Icons.local_fire_department_rounded, color: const Color(0xFFE0512F));
     }
 
     final originalPrice = trip.originalPrice;
     if (originalPrice != null && originalPrice > trip.price) {
-      final discountPercent =
-      (((originalPrice - trip.price) / originalPrice) * 100).round();
+      final discountPercent = (((originalPrice - trip.price) / originalPrice) * 100).round();
       if (discountPercent >= 10) {
-        return (
-        label: '$discountPercent% Off',
-        icon: Icons.sell_rounded,
-        color: const Color(0xFFD0342C),
-        );
+        return (label: '$discountPercent% Off', icon: Icons.sell_rounded, color: const Color(0xFFD0342C));
       }
     }
 
-    if (trip.createdAt != null &&
-        DateTime.now().difference(trip.createdAt!).inDays <= 14) {
-      return (
-      label: 'New',
-      icon: Icons.fiber_new_rounded,
-      color: const Color(0xFF2F6FED),
-      );
+    if (trip.createdAt != null && DateTime.now().difference(trip.createdAt!).inDays <= 14) {
+      return (label: 'New', icon: Icons.fiber_new_rounded, color: const Color(0xFF2F6FED));
     }
 
-    // Best Seller: agar trip explicitly featured/marked hai
     if (widget.trip.isFeatured) {
       return (label: 'Best Seller', icon: Icons.star_rounded, color: AppColors.primary);
     }
@@ -131,16 +98,8 @@ class _FeaturedTripCardState extends State<FeaturedTripCard> {
           borderRadius: BorderRadius.circular(AppSizes.radiusLg),
           border: Border.all(color: scheme.outline.withValues(alpha: 0.10)),
           boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 16,
-              offset: const Offset(0, 6),
-            ),
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 2,
-              offset: const Offset(0, 1),
-            ),
+            BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 16, offset: const Offset(0, 6)),
+            BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 2, offset: const Offset(0, 1)),
           ],
         ),
         clipBehavior: Clip.antiAlias,
@@ -163,24 +122,19 @@ class _FeaturedTripCardState extends State<FeaturedTripCard> {
                       : Container(color: Colors.grey.shade300),
                 ),
 
-                // Halka gradient overlay taake badge/icon image ke upar bhi readable rahe
                 Positioned.fill(
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.black.withValues(alpha: 0.18),
-                          Colors.transparent,
-                        ],
+                        colors: [Colors.black.withValues(alpha: 0.18), Colors.transparent],
                         stops: const [0.0, 0.4],
                       ),
                     ),
                   ),
                 ),
 
-                // ===== Dynamic Badge (glass/blur pill) =====
                 if (badge != null)
                   Positioned(
                     top: 8,
@@ -195,11 +149,7 @@ class _FeaturedTripCardState extends State<FeaturedTripCard> {
                             color: badge.color.withValues(alpha: 0.85),
                             borderRadius: BorderRadius.circular(AppSizes.radiusFull),
                             boxShadow: [
-                              BoxShadow(
-                                color: badge.color.withValues(alpha: 0.35),
-                                blurRadius: 6,
-                                offset: const Offset(0, 2),
-                              ),
+                              BoxShadow(color: badge.color.withValues(alpha: 0.35), blurRadius: 6, offset: const Offset(0, 2)),
                             ],
                           ),
                           child: Row(
@@ -207,14 +157,7 @@ class _FeaturedTripCardState extends State<FeaturedTripCard> {
                             children: [
                               Icon(badge.icon, size: 11, color: Colors.white),
                               const SizedBox(width: 3),
-                              Text(
-                                badge.label,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
+                              Text(badge.label, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700)),
                             ],
                           ),
                         ),
@@ -222,37 +165,36 @@ class _FeaturedTripCardState extends State<FeaturedTripCard> {
                     ),
                   ),
 
-                // ===== Favorite button (glass background) =====
+                // ===== Favorite button — ab shared controller se, poori app sync =====
                 Positioned(
                   top: 8,
                   right: 8,
-                  child: GestureDetector(
-                    onTap: _toggleFavorite,
-                    child: ClipOval(
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.75),
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.15),
-                                blurRadius: 4,
-                                offset: const Offset(0, 1),
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            _isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                            size: 16,
-                            color: _isFavorite ? Colors.redAccent : Colors.black87,
+                  child: Obx(() {
+                    final isFav = _favorites.isFavorite(trip.id);
+                    return GestureDetector(
+                      onTap: () => _favorites.toggle(trip.id),
+                      child: ClipOval(
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.75),
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 4, offset: const Offset(0, 1)),
+                              ],
+                            ),
+                            child: Icon(
+                              isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                              size: 16,
+                              color: isFav ? Colors.redAccent : Colors.black87,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
+                    );
+                  }),
                 ),
               ],
             ),
@@ -291,7 +233,6 @@ class _FeaturedTripCardState extends State<FeaturedTripCard> {
                     ],
                   ),
                   const SizedBox(height: AppSizes.xs),
-
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -304,14 +245,8 @@ class _FeaturedTripCardState extends State<FeaturedTripCard> {
                           children: [
                             const Icon(Icons.star_rounded, size: 14, color: Colors.amber),
                             const SizedBox(width: 2),
-                            Text(
-                              _liveRating.toStringAsFixed(1),
-                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: scheme.onSurface),
-                            ),
-                            Text(
-                              ' ($_liveReviewCount)',
-                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: scheme.onSurface.withValues(alpha: 0.6)),
-                            ),
+                            Text(_liveRating.toStringAsFixed(1), style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: scheme.onSurface)),
+                            Text(' ($_liveReviewCount)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: scheme.onSurface.withValues(alpha: 0.6))),
                           ],
                         ),
                     ],

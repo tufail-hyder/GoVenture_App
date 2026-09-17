@@ -65,8 +65,8 @@ class TripDetailScreen extends StatelessWidget {
           }),
           Obx(() => IconButton(
             icon: Icon(
-              controller.isFavorite.value ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-              color: controller.isFavorite.value ? AppColors.favoriteRed : textPrimary,
+              controller.isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+              color: controller.isFavorite ? AppColors.favoriteRed : textPrimary,
             ),
             onPressed: controller.toggleFavorite,
           )),
@@ -368,9 +368,6 @@ class _TripDetailBody extends StatelessWidget {
                   );
                 }),
                 const SizedBox(height: AppSizes.md),
-
-                const TripTermsSection(),
-                const SizedBox(height: AppSizes.lg),
               ],
             ),
           ),
