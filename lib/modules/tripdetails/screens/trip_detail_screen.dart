@@ -21,7 +21,6 @@ import '../../../core/constants/app_sizes.dart';
 import '../widgets/trip_map_section.dart';
 import '../widgets/trip_reviews_section.dart';
 import '../models/trip_model.dart';
-import '../widgets/trip_terms_section.dart';
 import 'all_reviews_screen.dart';
 
 class TripDetailScreen extends StatelessWidget {
@@ -368,9 +367,6 @@ class _TripDetailBody extends StatelessWidget {
                   );
                 }),
                 const SizedBox(height: AppSizes.md),
-
-                const TripTermsSection(),
-                const SizedBox(height: AppSizes.lg),
               ],
             ),
           ),
