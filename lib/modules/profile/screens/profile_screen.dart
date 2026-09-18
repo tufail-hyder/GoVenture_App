@@ -4,6 +4,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:goventure/modules/profile/screens/settings_screen.dart';
 import '../../mybookings/screens/my_bookings_screen.dart';
+import '../../notification/screens/notification_screen.dart';
 import '../services/profile_photo_services.dart';
 import '../services/trip_terms_services.dart';
 import '../../auth/controllers/auth_controller.dart';

@@ -45,21 +45,21 @@ class DestinationMiniCard extends StatelessWidget {
             ),
 
             Positioned(
-              top: AppSizes.sm,
-              right: AppSizes.sm,
+              top: 6,
+              right: 6,
               child: Obx(() {
                 final isFav = favorites.isFavoriteDestination(destination.id);
                 return GestureDetector(
                   onTap: () => favorites.toggleDestination(destination.id),
                   child: Container(
-                    padding: const EdgeInsets.all(6),
+                    padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
                       color: Colors.black.withValues(alpha: 0.25),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                      size: 18,
+                      size: 21,
                       color: isFav ? Colors.redAccent : Colors.white,
                     ),
                   ),

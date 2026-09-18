@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:goventure/modules/home/widget/section_header.dart';
 import '../../customtours/screens/customize_tour_screen.dart';
 import '../../home/screens/trips_list_screen.dart';
+import '../../notification/controllers/notification_controller.dart';
+import '../../notification/screens/notification_screen.dart';
 import '../../tripdetails/screens/trip_detail_screen.dart';
 import '../controllers/explore_controller.dart';
 import '../widgets/category_chip.dart';
@@ -84,20 +86,27 @@ class _ExploreScreenState extends State<ExploreScreen> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: AppSizes.md),
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Icon(Icons.notifications_none_rounded, color: textPrimary),
-                Positioned(
-                  top: -1,
-                  right: -1,
-                  child: Container(
-                    width: 8,
-                    height: 8,
-                    decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
-                  ),
-                ),
-              ],
+            child: GestureDetector(
+              onTap: () => Get.to(() => const NotificationsScreen()),
+              child: Obx(() {
+                final notificationController = Get.find<NotificationController>();
+                return Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Icon(Icons.notifications_none_rounded, color: textPrimary),
+                    if (notificationController.unreadCount.value > 0)
+                      Positioned(
+                        top: -1,
+                        right: -1,
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+                        ),
+                      ),
+                  ],
+                );
+              }),
             ),
           ),
         ],

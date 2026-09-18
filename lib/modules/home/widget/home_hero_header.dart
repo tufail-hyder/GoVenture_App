@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_images.dart';
 import '../../../core/constants/app_text.dart';
+import '../../notification/controllers/notification_controller.dart';
+import '../../notification/screens/notification_screen.dart';
+import '../../profile/widgets/help_center_screen.dart';
 
 class HomeHeroHeader extends StatelessWidget {
   final String greeting;
@@ -19,6 +23,7 @@ class HomeHeroHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final notificationController = Get.find<NotificationController>();
 
     return Stack(
       clipBehavior: Clip.none,
@@ -43,35 +48,44 @@ class HomeHeroHeader extends StatelessWidget {
                   Image.asset(AppImages.appLightLogo, width: 120, height: 40),
                   Text(
                     AppTexts.appTagline,
-                    style: theme.textTheme.labelSmall?.copyWith(color: Colors.black,fontWeight: FontWeight.w600,fontSize: 12),
+                    style: theme.textTheme.labelSmall?.copyWith(color: Colors.black, fontWeight: FontWeight.w600, fontSize: 12),
                   ),
                 ],
               ),
               const Spacer(),
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  CircleAvatar(
-                    backgroundColor: Colors.grey.shade300,
-                    child: Icon(Icons.notifications_none_rounded, color: theme.iconTheme.color),
-                  ),
-                  Positioned(
-                    top: -2, right: -2,
-                    child: Container(
-                      width: 10, height: 10,
-                      decoration: const BoxDecoration(color: AppColors.error, shape: BoxShape.circle),
+              GestureDetector(
+                onTap: () => Get.to(() => const NotificationsScreen()),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: Colors.grey.shade300,
+                      child: Icon(Icons.notifications_none_rounded, color: theme.iconTheme.color),
                     ),
-                  ),
-                ],
+                    Positioned(
+                      top: -2,
+                      right: -2,
+                      child: Obx(() => notificationController.unreadCount.value > 0
+                          ? Container(
+                        width: 10,
+                        height: 10,
+                        decoration: const BoxDecoration(color: AppColors.error, shape: BoxShape.circle),
+                      )
+                          : const SizedBox.shrink()),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
         ),
-        SizedBox(height: 10,),
+        SizedBox(height: 10),
         Text(AppTexts.appTagline, style: theme.textTheme.labelSmall?.copyWith(color: Colors.black)),
 
         Positioned(
-          top: 140, left: AppSizes.md, right: AppSizes.md,
+          top: 140,
+          left: AppSizes.md,
+          right: AppSizes.md,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -88,7 +102,9 @@ class HomeHeroHeader extends StatelessWidget {
           ),
         ),
         Positioned(
-          bottom: -26, left: AppSizes.md, right: AppSizes.md,
+          bottom: -26,
+          left: AppSizes.md,
+          right: AppSizes.md,
           child: Material(
             elevation: 4,
             borderRadius: BorderRadius.circular(AppSizes.radiusFull),

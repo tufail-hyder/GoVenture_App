@@ -105,34 +105,3 @@ class HelpCenterScreen extends StatelessWidget {
     );
   }
 }
-
-class NotificationsScreen extends StatelessWidget {
-  const NotificationsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final background = isDark ? AppColors.backgroundDark : AppColors.backgroundLight;
-    final textPrimary = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
-    final textSecondary = isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
-
-    return Scaffold(
-      backgroundColor: background,
-      appBar: AppBar(
-        backgroundColor: background,
-        elevation: 0,
-        title: Text('Notifications', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.notifications_none_rounded, size: 48, color: textSecondary),
-            const SizedBox(height: AppSizes.sm),
-            Text('No notifications yet', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: textPrimary)),
-          ],
-        ),
-      ),
-    );
-  }
-}

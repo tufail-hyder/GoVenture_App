@@ -249,7 +249,7 @@ class _AllDestinationsScreenState extends State<AllDestinationsScreen> {
                                   ),
                                 ),
                               ),
-                              // ===== Favorite heart icon — naya add kiya =====
+                              // ===== Favorite heart icon =====
                               Positioned(
                                 top: AppSizes.sm,
                                 right: AppSizes.sm,
@@ -265,7 +265,7 @@ class _AllDestinationsScreenState extends State<AllDestinationsScreen> {
                                       ),
                                       child: Icon(
                                         isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                                        size: 18,
+                                        size: 24,
                                         color: isFav ? Colors.redAccent : Colors.white,
                                       ),
                                     ),
@@ -280,15 +280,13 @@ class _AllDestinationsScreenState extends State<AllDestinationsScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Text(
-                                      dest.title,
+                                    Text(dest.title,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
                                     ),
                                     if (dest.location.isNotEmpty)
-                                      Text(
-                                        dest.location,
+                                      Text(dest.location,
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(color: Colors.white70, fontSize: 13),

@@ -47,7 +47,6 @@ class _FeaturedTripCardState extends State<FeaturedTripCard> {
         _liveReviewCount = reviews.length;
       });
     } catch (_) {
-      // Fail silently — card sirf rating na dikhaye, crash na ho
     }
   }
 
@@ -165,10 +164,10 @@ class _FeaturedTripCardState extends State<FeaturedTripCard> {
                     ),
                   ),
 
-                // ===== Favorite button — ab shared controller se, poori app sync =====
+                // ===== Favorite button =====
                 Positioned(
-                  top: 8,
-                  right: 8,
+                  top: 6,
+                  right: 6,
                   child: Obx(() {
                     final isFav = _favorites.isFavorite(trip.id);
                     return GestureDetector(
@@ -177,18 +176,15 @@ class _FeaturedTripCardState extends State<FeaturedTripCard> {
                         child: BackdropFilter(
                           filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
                           child: Container(
-                            padding: const EdgeInsets.all(6),
+                            padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.75),
+                              color: Colors.black.withValues(alpha: 0.25),
                               shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 4, offset: const Offset(0, 1)),
-                              ],
                             ),
                             child: Icon(
                               isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                              size: 16,
-                              color: isFav ? Colors.redAccent : Colors.black87,
+                              size: 21,
+                              color: isFav ? Colors.redAccent : Colors.white,
                             ),
                           ),
                         ),
@@ -236,8 +232,7 @@ class _FeaturedTripCardState extends State<FeaturedTripCard> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'PKR ${trip.price.toStringAsFixed(0)}',
+                      Text('PKR ${trip.price.toStringAsFixed(0)}',
                         style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 15),
                       ),
                       if (_liveReviewCount > 0)
@@ -259,6 +254,5 @@ class _FeaturedTripCardState extends State<FeaturedTripCard> {
       ),
     );
   }
-
   String _capitalize(String text) => text.isEmpty ? '' : text[0].toUpperCase() + text.substring(1);
 }

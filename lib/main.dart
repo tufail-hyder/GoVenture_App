@@ -9,6 +9,8 @@ import 'package:goventure/modules/root/root_screen.dart';
 import 'firebase_options.dart';
 import 'core/theme/app_theme.dart';
 import 'modules/favourite/controllers/favorites_controller.dart';
+import 'modules/notification/controllers/notification_controller.dart';
+import 'modules/notification/services/notification_services.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +18,10 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await NotificationService.instance.init();
   Get.put(FavoritesController(), permanent: true);
+  Get.put(NotificationController(), permanent: true);
+
   final storage = GetStorage();
   final isFirstTime = storage.read('IsFirstTime') ?? true;
   final isLoggedIn = FirebaseAuth.instance.currentUser != null;

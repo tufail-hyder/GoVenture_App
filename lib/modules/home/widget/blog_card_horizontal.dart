@@ -6,11 +6,13 @@ import '../../../core/constants/app_colors.dart';
 class BlogCardHorizontal extends StatelessWidget {
   final BlogModel blog;
   final VoidCallback onTap;
+  final double imageHeight;
 
   const BlogCardHorizontal({
     super.key,
     required this.blog,
     required this.onTap,
+    this.imageHeight = 100, // home screen ke liye default same rahega
   });
 
   @override
@@ -43,7 +45,7 @@ class BlogCardHorizontal extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              height: 100,
+              height: imageHeight,
               width: double.infinity,
               child: blog.coverImage.isNotEmpty
                   ? Image.network(

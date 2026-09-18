@@ -119,7 +119,50 @@ class _TripsListScreenState extends State<TripsListScreen> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(title: Text(_title)),
-        body: isGridMode ? _buildTripGrid(scheme) : _buildUpcomingList(),
+        body: isGridMode ? _buildTripGrid(scheme) : _buildUpcomingList(scheme),
+      ),
+    );
+  }
+
+  // ===== Reusable search bar (same style used in both grid & upcoming list) =====
+  Widget _buildSearchBar(ColorScheme scheme, {required String hintText, List<PopupMenuEntry<_SortOption>>? sortItems}) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(AppSizes.md, AppSizes.sm, AppSizes.md, 0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: scheme.outline.withValues(alpha: 0.15)),
+        ),
+        child: TextField(
+          controller: _searchController,
+          onChanged: (val) => setState(() => _searchQuery = val),
+          decoration: InputDecoration(
+            hintText: hintText,
+            prefixIcon: const Icon(Icons.search_rounded),
+            suffixIcon: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (_searchQuery.isNotEmpty)
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded, size: 18),
+                    onPressed: () {
+                      _searchController.clear();
+                      setState(() => _searchQuery = '');
+                    },
+                  ),
+                if (sortItems != null)
+                  PopupMenuButton<_SortOption>(
+                    icon: Icon(Icons.sort_rounded, color: _sortOption == _SortOption.none ? null : AppColors.primary),
+                    onSelected: (opt) => setState(() => _sortOption = opt),
+                    itemBuilder: (context) => sortItems,
+                  ),
+              ],
+            ),
+            border: InputBorder.none,
+            contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+          ),
+        ),
       ),
     );
   }
@@ -142,39 +185,24 @@ class _TripsListScreenState extends State<TripsListScreen> {
 
         return Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(AppSizes.md, AppSizes.sm, AppSizes.md, 0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: scheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: scheme.outline.withValues(alpha: 0.15)),
-                ),
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: (val) => setState(() => _searchQuery = val),
-                  decoration: InputDecoration(
-                    hintText: 'Search trips...',
-                    prefixIcon: const Icon(Icons.search_rounded),
-                    suffixIcon: PopupMenuButton<_SortOption>(
-                      icon: Icon(Icons.sort_rounded, color: _sortOption == _SortOption.none ? null : AppColors.primary),
-                      onSelected: (opt) => setState(() => _sortOption = opt),
-                      itemBuilder: (context) => const [
-                        PopupMenuItem(value: _SortOption.priceLow, child: Text('Price: Low to High')),
-                        PopupMenuItem(value: _SortOption.priceHigh, child: Text('Price: High to Low')),
-                        PopupMenuItem(value: _SortOption.ratingHigh, child: Text('Rating: High to Low')),
-                        PopupMenuItem(value: _SortOption.azAsc, child: Text('Sort A-Z')),
-                      ],
-                    ),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
-                  ),
-                ),
-              ),
+            _buildSearchBar(
+              scheme,
+              hintText: 'Search trips...',
+              sortItems: const [
+                PopupMenuItem(value: _SortOption.priceLow, child: Text('Price: Low to High')),
+                PopupMenuItem(value: _SortOption.priceHigh, child: Text('Price: High to Low')),
+                PopupMenuItem(value: _SortOption.ratingHigh, child: Text('Rating: High to Low')),
+                PopupMenuItem(value: _SortOption.azAsc, child: Text('Sort A-Z')),
+              ],
             ),
             Expanded(
               child: trips.isEmpty
-                  ? const Center(child: Text('No trips found'))
+                  ? Center(
+                child: Text(
+                  query.isNotEmpty ? 'No trips match "$_searchQuery"' : 'No trips found',
+                  textAlign: TextAlign.center,
+                ),
+              )
                   : GridView.builder(
                 padding: const EdgeInsets.all(AppSizes.md),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -198,28 +226,55 @@ class _TripsListScreenState extends State<TripsListScreen> {
     );
   }
 
-  // ===== Upcoming Tours: vertical list =====
-  Widget _buildUpcomingList() {
+  // ===== Upcoming Tours: vertical list (now with search bar) =====
+  Widget _buildUpcomingList(ColorScheme scheme) {
     return FutureBuilder<List<TripModel>>(
       future: _upcomingTripsFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-        final trips = snapshot.data ?? [];
+        final all = snapshot.data ?? [];
+        final query = _searchQuery.trim().toLowerCase();
+        var trips = all.where((t) =>
+        query.isEmpty ||
+            t.title.toLowerCase().contains(query) ||
+            t.location.toLowerCase().contains(query)).toList();
+        trips = _applySort(trips);
 
-        if (trips.isEmpty) {
-          return const Center(child: Text('No upcoming tours'));
-        }
-
-        return ListView.separated(
-          padding: const EdgeInsets.all(AppSizes.md),
-          itemCount: trips.length,
-          separatorBuilder: (_, __) => const SizedBox(height: AppSizes.sm),
-          itemBuilder: (_, i) => UpcomingTripListTile(
-            trip: trips[i],
-            onTap: () => Get.to(() => TripDetailScreen(tripId: trips[i].id)),
-          ),
+        return Column(
+          children: [
+            _buildSearchBar(
+              scheme,
+              hintText: 'Search upcoming tours...',
+              sortItems: const [
+                PopupMenuItem(value: _SortOption.priceLow, child: Text('Price: Low to High')),
+                PopupMenuItem(value: _SortOption.priceHigh, child: Text('Price: High to Low')),
+                PopupMenuItem(value: _SortOption.durationShort, child: Text('Duration: Short to Long')),
+                PopupMenuItem(value: _SortOption.durationLong, child: Text('Duration: Long to Short')),
+                PopupMenuItem(value: _SortOption.azAsc, child: Text('Sort A-Z')),
+              ],
+            ),
+            const SizedBox(height: AppSizes.sm),
+            Expanded(
+              child: trips.isEmpty
+                  ? Center(
+                child: Text(
+                  query.isNotEmpty ? 'No upcoming tours match "$_searchQuery"' : 'No upcoming tours',
+                  textAlign: TextAlign.center,
+                ),
+              )
+                  : ListView.separated(
+                padding: const EdgeInsets.fromLTRB(AppSizes.md, 0, AppSizes.md, AppSizes.md),
+                itemCount: trips.length,
+                separatorBuilder: (_, __) => const SizedBox(height: AppSizes.sm),
+                itemBuilder: (_, i) => UpcomingTripListTile(
+                  trip: trips[i],
+                  onTap: () => Get.to(() => TripDetailScreen(tripId: trips[i].id)),
+                ),
+              ),
+            ),
+          ],
         );
       },
     );

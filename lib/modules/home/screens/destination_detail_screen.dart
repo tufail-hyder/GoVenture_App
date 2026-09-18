@@ -74,7 +74,7 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen>
             stretch: true,
             backgroundColor: AppColors.primary,
             leading: Padding(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.fromLTRB(8,8,8,8),
               child: CircleIconButton(
                 icon: Icons.arrow_back_ios_new_rounded,
                 onTap: () => Navigator.of(context).pop(),
@@ -82,7 +82,7 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen>
             ),
               actions: [
                 Padding(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.fromLTRB(8,8,14,8),
                   child: FavoriteButton(destinationId: dest.id),
                 ),
               ],
@@ -728,10 +728,10 @@ class CircleIconButton extends StatelessWidget {
         height: 36,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.3),
+          color: Colors.black.withValues(alpha: 0.25),
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, size: 18, color: iconColor),
+        child: Icon(icon, size: 24, color: iconColor),
       ),
     );
   }

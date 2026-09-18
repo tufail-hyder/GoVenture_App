@@ -1,1 +1,36 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"goventure-183de","appId":"1:362840784483:android:ac47e0b8ef7f047d8ec256","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"goventure-183de","configurations":{"android":"1:362840784483:android:ac47e0b8ef7f047d8ec256","ios":"1:362840784483:ios:a3847bb088c4eb9e8ec256"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "goventure-183de",
+          "appId": "1:362840784483:android:ac47e0b8ef7f047d8ec256",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "goventure-183de",
+          "configurations": {
+            "android": "1:362840784483:android:ac47e0b8ef7f047d8ec256",
+            "ios": "1:362840784483:ios:a3847bb088c4eb9e8ec256"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "disallowLegacyRuntimeConfig": true,
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
+  ]
+}
