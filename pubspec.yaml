@@ -1,0 +1,91 @@
+name: goventure
+description: "GoVenture.pk — travel, workcation, adventure & retreat companion app"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.7
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  firebase_core: ^4.14.0
+  cloud_firestore: ^6.8.0
+  firebase_auth: ^6.6.1
+  google_sign_in: ^7.2.0
+  sign_in_with_apple: ^7.0.1
+  crypto: ^3.0.7
+  google_fonts: ^8.2.1
+  get: ^4.7.3
+  get_storage: ^2.1.1
+  smooth_page_indicator: ^2.0.1
+  intl: ^0.20.3
+  shimmer_animation: ^2.2.2+1
+  cloudinary_public: ^0.23.1
+  cached_network_image: ^4.0.0
+  google_maps_flutter: ^2.18.0
+  url_launcher: ^6.3.2
+  share_plus: ^13.3.0
+  flutter_pdfview: ^1.4.5
+  dio: ^5.11.0
+  path_provider: ^2.1.6
+  permission_handler: ^13.0.1
+  syncfusion_flutter_pdfviewer: ^34.2.5
+  iconsax_flutter: ^1.0.1
+  flutter_native_splash: ^2.4.8
+  image_picker: ^1.2.3
+  firebase_storage: ^13.6.0
+
+
+dev_dependencies:
+  flutter_launcher_icons: ^0.14.4
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/icons/app_icon.png"
+  min_sdk_android: 21
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/logos/
+    - assets/images/onboarding/
+    - assets/images/home/
+    - assets/images/icons/
+    - assets/images/auth/
+    - assets/images/goventure/
+    - assets/images/splash/
+
+  fonts:
+    - family: TimesNewRoman
+      fonts:
+        - asset: assets/fonts/times.ttf
+        - asset: assets/fonts/times-bd.ttf
+          weight: 800
+        - asset: assets/fonts/times-bi.ttf
+          weight: 800
+          style: italic
+        - asset: assets/fonts/times-i.ttf
+          style: italic
+
+flutter_native_splash:
+  color: "#FFFFFF"
+  color_dark: "#121212"
+  image: assets/images/logos/app_light_logo_splash.png
+  image_dark: assets/images/logos/app_dark_logo_splash.png
+
+  android_gravity: center
+  ios_content_mode: center
+
+  android_12:
+    color: "#FFFFFF"
+    color_dark: "#121212"
+    image: assets/images/logos/app_light_logo_splash.png
+    image_dark: assets/images/logos/app_dark_logo_splash.png
+
+  fullscreen: true

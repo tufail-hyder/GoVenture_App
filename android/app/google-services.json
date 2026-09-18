@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "362840784483",
+    "project_id": "goventure-183de",
+    "storage_bucket": "goventure-183de.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:362840784483:android:ac47e0b8ef7f047d8ec256",
+        "android_client_info": {
+          "package_name": "com.example.goventure_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "362840784483-28l3daat1n6m4r2merhe47lecs3gcnkc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.goventure_app",
+            "certificate_hash": "47397b898e3dc8159a336e5474f1045dee95820c"
+          }
+        },
+        {
+          "client_id": "362840784483-lbrrug81kndrg74hc1ld9sb0tk4vehcl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzokAUyqkZ5XjK06NGEbvhyilNvC5MCEg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "362840784483-lbrrug81kndrg74hc1ld9sb0tk4vehcl.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "362840784483-av0vq24h55uhhdolmqvrjhpdd664tc49.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.goventureApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
