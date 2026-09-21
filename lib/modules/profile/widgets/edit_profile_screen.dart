@@ -343,16 +343,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           : ListView(
         padding: const EdgeInsets.all(AppSizes.md),
         children: [
-          // ===== Static avatar — sirf initial letter, koi change option nahi =====
-          Center(
-            child: CircleAvatar(
-              radius: 48,
-              backgroundColor: primaryLight,
-              child: Text(initial, style: TextStyle(fontSize: 34, fontWeight: FontWeight.w800, color: primary)),
-            ),
-          ),
-          const SizedBox(height: AppSizes.lg),
-
           _SectionHeader('Profile Information', textPrimary: textPrimary),
           _InfoCard(
             surface: surface,

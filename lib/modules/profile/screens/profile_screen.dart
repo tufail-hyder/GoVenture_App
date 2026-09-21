@@ -5,7 +5,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:goventure/modules/profile/screens/settings_screen.dart';
 import '../../mybookings/screens/my_bookings_screen.dart';
 import '../../notification/screens/notification_screen.dart';
-import '../services/profile_photo_services.dart';
 import '../services/trip_terms_services.dart';
 import '../../auth/controllers/auth_controller.dart';
 import '../../auth/screens/login_screen.dart';
@@ -65,6 +64,7 @@ class ProfileScreen extends StatelessWidget {
     final displayName = (user?.displayName?.trim().isNotEmpty ?? false) ? user!.displayName!.trim() : 'Guest';
     final email = user?.email ?? '';
     final phone = user?.phoneNumber ?? '';
+    final initial = displayName.isNotEmpty ? displayName[0].toUpperCase() : '?';
 
     return Scaffold(
       backgroundColor: background,
@@ -76,39 +76,75 @@ class ProfileScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(AppSizes.md),
         children: [
-          // ===== Avatar (tap to change) + Name + Email + Phone =====
-          Center(
-            child: Column(
+          // ===== Name/Email card — initial badge + name/email, boxed look =====
+          Container(
+            padding: const EdgeInsets.all(AppSizes.md),
+            decoration: BoxDecoration(
+              color: surface,
+              borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+              border: Border.all(color: divider),
+            ),
+            child: Row(
               children: [
-                _ProfileAvatar(
-                  displayName: displayName,
-                  photoUrl: user?.photoURL,
-                  primary: primary,
-                  primaryLight: primaryLight,
-                  background: background,
+                CircleAvatar(
+                  radius: 26,
+                  backgroundColor: primaryLight,
+                  child: Text(
+                    initial,
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: primary),
+                  ),
                 ),
-                const SizedBox(height: AppSizes.sm + 4),
-                Text(displayName, style: TextStyle(fontSize: 19, fontWeight: FontWeight.w800, color: textPrimary)),
-                if (email.isNotEmpty) ...[
-                  const SizedBox(height: 2),
-                  Text(email, style: TextStyle(fontSize: 13.5, color: textSecondary)),
-                ],
-                if (phone.isNotEmpty) ...[
-                  const SizedBox(height: 2),
-                  Text(phone, style: TextStyle(fontSize: 13.5, color: textSecondary)),
-                ],
+                const SizedBox(width: AppSizes.sm + 4),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        displayName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w800, color: textPrimary),
+                      ),
+                      if (email.isNotEmpty) ...[
+                        const SizedBox(height: 3),
+                        Text(
+                          email,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 13, color: textSecondary),
+                        ),
+                      ],
+                      if (phone.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          phone,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 13, color: textSecondary),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
-          const SizedBox(height: AppSizes.lg),
+          const SizedBox(height: AppSizes.md),
 
-          _ProfileTile(
-            icon: Icons.edit_outlined,
-            label: 'Edit Profile',
-            surface: surface,
-            textPrimary: textPrimary,
-            iconColor: primary,
-            onTap: () => Get.to(() => const EditProfileScreen()),
+          _ProfileCard(
+          surface: surface,
+          divider: divider,
+          children: [
+            _ProfileTile(
+              icon: Icons.edit_outlined,
+              label: 'Edit Profile',
+              surface: surface,
+              textPrimary: textPrimary,
+              iconColor: primary,
+              onTap: () => Get.to(() => const EditProfileScreen()),
+            ),
+            ]
           ),
           const SizedBox(height: AppSizes.sm),
 
@@ -284,98 +320,6 @@ class ProfileScreen extends StatelessWidget {
               Get.offAll(() => LoginScreen());
             },
             child: const Text('Log Out', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.w700)),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Tappable avatar shown at the top of ProfileScreen. Manages its own
-/// local override of the photo URL so the picture refreshes immediately
-/// after a successful upload, without needing the whole screen (and its
-/// AuthController) to be reactive.
-class _ProfileAvatar extends StatefulWidget {
-  const _ProfileAvatar({
-    required this.displayName,
-    required this.photoUrl,
-    required this.primary,
-    required this.primaryLight,
-    required this.background,
-  });
-
-  final String displayName;
-  final String? photoUrl;
-  final Color primary;
-  final Color primaryLight;
-  final Color background;
-
-  @override
-  State<_ProfileAvatar> createState() => _ProfileAvatarState();
-}
-
-class _ProfileAvatarState extends State<_ProfileAvatar> {
-  String? _localPhotoUrl;
-  bool _isUploading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _localPhotoUrl = widget.photoUrl;
-  }
-
-  Future<void> _changePhoto() async {
-    setState(() => _isUploading = true);
-    final url = await ProfilePhotoService.pickAndUpload(context);
-    if (!mounted) return;
-    setState(() {
-      _isUploading = false;
-      if (url != null) _localPhotoUrl = url;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final photoUrl = _localPhotoUrl ?? widget.photoUrl;
-    final initial = widget.displayName.isNotEmpty ? widget.displayName[0].toUpperCase() : '?';
-
-    return GestureDetector(
-      onTap: _isUploading ? null : _changePhoto,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          CircleAvatar(
-            radius: 44,
-            backgroundColor: widget.primaryLight,
-            backgroundImage: (photoUrl != null && photoUrl.isNotEmpty) ? NetworkImage(photoUrl) : null,
-            child: (photoUrl == null || photoUrl.isEmpty)
-                ? Text(initial, style: TextStyle(fontSize: 32, fontWeight: FontWeight.w800, color: widget.primary))
-                : null,
-          ),
-          if (_isUploading)
-            Positioned.fill(
-              child: CircleAvatar(
-                radius: 44,
-                backgroundColor: Colors.black.withOpacity(0.35),
-                child: const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2.2, color: Colors.white),
-                ),
-              ),
-            ),
-          Positioned(
-            bottom: -2,
-            right: -2,
-            child: Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: widget.primary,
-                shape: BoxShape.circle,
-                border: Border.all(color: widget.background, width: 2.5),
-              ),
-              child: const Icon(Icons.camera_alt_rounded, size: 14, color: Colors.white),
-            ),
           ),
         ],
       ),

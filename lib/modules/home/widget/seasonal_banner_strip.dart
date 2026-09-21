@@ -129,9 +129,10 @@ class SeasonalBannerStrip extends StatelessWidget {
                       ),
                       child: Text(
                         banner.ctaText,
+                        maxLines: 1,
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 12.5,
+                          fontSize: 10,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
