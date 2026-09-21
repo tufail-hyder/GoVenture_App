@@ -40,13 +40,13 @@ class SettingsScreen extends StatelessWidget {
                 Obx(() => ListTile(
                   title: Text('Language', style: TextStyle(color: textPrimary, fontWeight: FontWeight.w600)),
                   trailing: Text(controller.language.value, style: TextStyle(color: textSecondary)),
-                  onTap: () => _showPicker(context, 'Language', ['English', 'Urdu'], controller.setLanguage),
+                  onTap: () => _showPicker(context, 'Language', ['English'], controller.setLanguage),
                 )),
                 const Divider(height: 1),
                 Obx(() => ListTile(
                   title: Text('Currency', style: TextStyle(color: textPrimary, fontWeight: FontWeight.w600)),
                   trailing: Text(controller.currency.value, style: TextStyle(color: textSecondary)),
-                  onTap: () => _showPicker(context, 'Currency', ['PKR', 'USD'], controller.setCurrency),
+                  onTap: () => _showPicker(context, 'Currency', ['PKR',], controller.setCurrency),
                 )),
               ],
             ),
