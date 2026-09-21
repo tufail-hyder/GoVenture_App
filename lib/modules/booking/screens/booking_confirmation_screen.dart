@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import '../../mybookings/screens/my_bookings_screen.dart';
+import '../../root/root_nav_controller.dart';
 import '../../tripdetails/models/trip_model.dart';
 import '../controllers/booking_controller.dart';
 import '../../../core/constants/app_colors.dart';
@@ -85,17 +85,28 @@ class BookingConfirmationScreen extends StatelessWidget {
                     height: 48,
                     child: ElevatedButton(
                       onPressed: () {
-                        Get.offAll(() => const MyBookingsScreen());
+                        final navController = Get.isRegistered<RootNavController>()
+                            ? Get.find<RootNavController>()
+                            : Get.put(RootNavController());
+                        navController.changeTab(2);
+                        Get.offAll(() => const RootScreen());
                       },
                       child: const Text('View Booking'),
                     ),
                   ),
                   const SizedBox(height: AppSizes.sm),
+                  const SizedBox(height: AppSizes.sm),
                   SizedBox(
                     width: double.infinity,
                     height: 48,
                     child: OutlinedButton(
-                      onPressed: () => Get.offAll(() => const RootScreen()),
+                      onPressed: () {
+                        final navController = Get.isRegistered<RootNavController>()
+                            ? Get.find<RootNavController>()
+                            : Get.put(RootNavController());
+                        navController.changeTab(0);
+                        Get.offAll(() => const RootScreen());
+                      },
                       child: const Text('Back to Home'),
                     ),
                   ),

@@ -21,6 +21,7 @@ class SavedTripsScreen extends StatefulWidget {
 
 class _SavedTripsScreenState extends State<SavedTripsScreen> with SingleTickerProviderStateMixin {
   late final MyBookingsController controller;
+  late final FavoritesController favorites;
   late final TabController _tabController;
 
   List<DestinationModel> _destinations = [];
@@ -34,8 +35,13 @@ class _SavedTripsScreenState extends State<SavedTripsScreen> with SingleTickerPr
     controller = Get.isRegistered<MyBookingsController>()
         ? Get.find<MyBookingsController>()
         : Get.put(MyBookingsController());
+    favorites = Get.find<FavoritesController>();
+
     controller.fetchSaved();
     _fetchDestinations();
+
+    ever(favorites.tripIds, (_) => controller.fetchSaved(silent: true));
+    ever(favorites.destinationIds, (_) => _fetchDestinations(silent: true));
   }
 
   @override
@@ -44,11 +50,13 @@ class _SavedTripsScreenState extends State<SavedTripsScreen> with SingleTickerPr
     super.dispose();
   }
 
-  Future<void> _fetchDestinations() async {
-    setState(() {
-      _isLoadingDestinations = true;
-      _hasDestinationsError = false;
-    });
+  Future<void> _fetchDestinations({bool silent = false}) async {
+    if (!silent) {
+      setState(() {
+        _isLoadingDestinations = true;
+        _hasDestinationsError = false;
+      });
+    }
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) {
       setState(() {
@@ -59,22 +67,27 @@ class _SavedTripsScreenState extends State<SavedTripsScreen> with SingleTickerPr
     }
     try {
       final dests = await FavoritesService.getFavoriteDestinations(uid);
+      if (!mounted) return;
       setState(() {
         _destinations = dests;
         _isLoadingDestinations = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
-        _hasDestinationsError = true;
+        if (!silent) _hasDestinationsError = true;
         _isLoadingDestinations = false;
       });
     }
   }
 
   Future<void> _removeDestination(String destinationId) async {
-    setState(() => _destinations.removeWhere((d) => d.id == destinationId));
-    await Get.find<FavoritesController>().toggleDestination(destinationId);
+    setState(() {
+      _destinations.removeWhere((d) => d.id == destinationId);
+    });
+    await favorites.toggleDestination(destinationId);
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -95,12 +108,11 @@ class _SavedTripsScreenState extends State<SavedTripsScreen> with SingleTickerPr
               elevation: 0,
               pinned: true,
               floating: true,
-              title: Text('Saved', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textPrimary),),
+              title: Text('Saved', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textPrimary)),
               bottom: PreferredSize(
                 preferredSize: const Size.fromHeight(96),
                 child: Column(
                   children: [
-                    // ===== Stats row =====
                     Padding(
                       padding: const EdgeInsets.fromLTRB(AppSizes.md, 0, AppSizes.md, AppSizes.sm),
                       child: Row(
@@ -217,6 +229,8 @@ class _TripsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final favorites = Get.find<FavoritesController>();
+
     return Obx(() {
       if (controller.isLoadingSaved.value) {
         return const Center(child: CircularProgressIndicator());
@@ -243,7 +257,10 @@ class _TripsTab extends StatelessWidget {
               key: ValueKey(trip.id),
               trip: trip,
               onTap: () => Get.to(() => TripDetailScreen(tripId: trip.id)),
-              onRemove: () => controller.toggleSaved(trip.id),
+              onRemove: () {
+                controller.savedTrips.removeWhere((t) => t.id == trip.id);
+                favorites.toggle(trip.id);
+              },
             );
           },
         ),
@@ -313,6 +330,8 @@ class _AllTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final favorites = Get.find<FavoritesController>();
+
     return Obx(() {
       final tripsLoading = controller.isLoadingSaved.value;
       final trips = controller.savedTrips;
@@ -336,9 +355,10 @@ class _AllTab extends StatelessWidget {
             _SectionLabel(title: 'Trips', count: trips.length),
             const SizedBox(height: AppSizes.sm),
             ...trips.map((trip) => SavedTripCard(
+              key: ValueKey(trip.id),
               trip: trip,
               onTap: () => Get.to(() => TripDetailScreen(tripId: trip.id)),
-              onRemove: () => controller.toggleSaved(trip.id),
+              onRemove: () => favorites.toggle(trip.id),
             )),
             const SizedBox(height: AppSizes.md),
           ],

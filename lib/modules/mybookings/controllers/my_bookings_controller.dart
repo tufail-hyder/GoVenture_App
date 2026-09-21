@@ -27,9 +27,6 @@ class MyBookingsController extends GetxController {
     super.onInit();
     fetchBookings();
 
-    // ===== Kahin se bhi favorite/unfavorite ho, list background mein silently
-    // sync ho jaye — loading spinner nahi dikhega, is liye "reload" jaisa
-    // mehsoos nahi hoga =====
     ever(_favorites.tripIds, (_) {
       if (_savedLoadedOnce) fetchSaved(silent: true);
     });
@@ -58,9 +55,6 @@ class MyBookingsController extends GetxController {
     }
   }
 
-  /// [silent] true ho to loading spinner nahi dikhega — background sync
-  /// (jaise FavoritesController ke ever() listener) ke liye use hota hai,
-  /// taake screen achanak blank/reload na ho.
   Future<void> fetchSaved({bool silent = false}) async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) {
@@ -73,11 +67,7 @@ class MyBookingsController extends GetxController {
     try {
       savedTrips.value = await FavoritesService.getFavoriteTrips(uid);
       _savedLoadedOnce = true;
-    } catch (e, st) {
-      // ignore: avoid_print
-      print('MyBookingsController.fetchSaved ERROR: $e');
-      // ignore: avoid_print
-      print(st);
+    } catch (e) {
       if (!silent) hasSavedError.value = true;
     } finally {
       if (!silent) isLoadingSaved.value = false;

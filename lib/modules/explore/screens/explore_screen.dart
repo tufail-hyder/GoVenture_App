@@ -352,6 +352,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     itemBuilder: (context, index) {
                       final trip = controller.filteredTrips[index];
                       return Obx(() => TourListCard(
+                        key: ValueKey(trip.id),
                         trip: trip,
                         isFavorite: controller.isFavoriteTrip(trip.id),
                         onTap: () => Get.to(() => TripDetailScreen(tripId: trip.id)),

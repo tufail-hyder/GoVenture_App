@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:goventure/modules/tripdetails/screens/pdf_viewer_screen.dart';
+import '../../tripdetails/screens/trip_detail_screen.dart';
 import '../controllers/my_bookings_controller.dart';
 import '../widgets/booking_trip_card.dart';
 import '../widgets/contact_support.dart';
@@ -26,21 +27,6 @@ class MyBookingsScreen extends StatelessWidget {
         backgroundColor: background,
         elevation: 0,
         title: Text('My Trips', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: AppSizes.md),
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Icon(Icons.notifications_none_rounded, color: textPrimary),
-                Positioned(
-                  top: -1, right: -1,
-                  child: Container(width: 8, height: 8, decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle)),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
       body: Obx(() {
         final isSavedTab = controller.selectedTab.value == BookingTab.saved;
@@ -198,11 +184,14 @@ class MyBookingsScreen extends StatelessWidget {
                       );
                     }
                     return Column(
-                      children: saved.map((trip) => SavedTripCard(
+                      children: saved
+                          .map((trip) => SavedTripCard(
+                        key: ValueKey(trip.id),
                         trip: trip,
-                        onTap: () {},
+                        onTap: () => Get.to(() => TripDetailScreen(tripId: trip.id)),
                         onRemove: () => controller.toggleSaved(trip.id),
-                      )).toList(),
+                      ))
+                          .toList(),
                     );
                   }
 
@@ -223,10 +212,12 @@ class MyBookingsScreen extends StatelessWidget {
                     );
                   }
                   return Column(
-                    children: bookings.map((b) => BookingTripCard(
+                    children: bookings
+                        .map((b) => BookingTripCard(
+                      key: ValueKey(b.id),
                       booking: b,
                       relativeLabel: controller.relativeLabel(b.selectedDate),
-                      onTap: () {},
+                      onTap: () => Get.to(() => TripDetailScreen(tripId: b.tripId)),
                       onItinerary: () {
                         if (b.itineraryPdfUrl.trim().isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -242,7 +233,8 @@ class MyBookingsScreen extends StatelessWidget {
                         onConfirmCancel: () => controller.cancelBooking(b.id),
                       ),
                       onContactSupport: () => showContactSupportSheet(context, booking: b),
-                    )).toList(),
+                    ))
+                        .toList(),
                   );
                 }),
               ),
@@ -288,8 +280,8 @@ class _TabItem extends StatelessWidget {
               Icon(icon, size: 22, color: isSelected ? AppColors.primary : textSecondary),
               const SizedBox(height: 3),
               Text(label, style: TextStyle(fontSize: 12,
-                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
-                      color: isSelected ? AppColors.primary : textSecondary)),
+                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
+                  color: isSelected ? AppColors.primary : textSecondary)),
               const SizedBox(height: 4),
               Container(height: 2, width: 60, color: isSelected ? AppColors.primary : Colors.transparent),
             ],
